@@ -447,7 +447,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
         </div>
       </div>
 
-      {/* PRINT TEMPLATE - BORDERLESS CLEAN DESIGN */}
+      {/* PRINT TEMPLATE - EXACTLY LIKE SCREENSHOT */}
       <div id="memo-print-template" className="hidden">
         <div ref={memoRef} className="memo-container bg-white text-black font-serif">
            <div className="memo-inner flex flex-col h-full border-none">
@@ -456,87 +456,92 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                 <p className="text-[11px] font-bold uppercase tracking-[1px] mb-0.5">Cash Memo</p>
                 <h1 className="text-[20px] font-bold leading-none mb-1">MASTER COMPUTER & PRINTING PRESS</h1>
                 
-                <div className="flex justify-between items-center py-1 px-1 text-[11px] font-bold">
-                    <span className="border-b border-black">Proprietor: S.M. Shahjahan</span>
-                    <span className="font-sans border-b border-black">01720-365191</span>
+                <div className="flex justify-between items-center border-t border-b border-black py-0.5 px-1 text-[11px] font-bold">
+                    <span>Proprietor: S.M. Shahjahan</span>
+                    <span className="font-sans">01720-365191</span>
                 </div>
                 
-                <p className="text-[9px] font-medium italic mt-2 leading-tight">All types of composing, graphic design, and printing work are done here.</p>
+                <p className="text-[9px] font-medium italic mt-1 leading-tight">All types of composing, graphic design, and printing work are done here.</p>
                 <p className="text-[9px] font-bold leading-tight">Primary Teachers Association Market, Sakhipur, Tangail.</p>
-                <div className="mt-2 mb-4 border-b border-black"></div>
+                <div className="border-b border-black mt-1 mb-3"></div>
              </div>
 
              {/* Client Info Section */}
-             <div className="grid grid-cols-2 gap-x-12 mb-6 text-[12px] px-1">
-                <div className="space-y-2">
-                  <p className="flex items-center"><span className="font-bold w-18">Serial No:</span> <span className="border-b border-dotted border-black flex-1 font-bold pl-1">#{formData.invoice_no}</span></p>
-                  <p className="flex items-center font-bengali"><span className="font-bold w-18">Name:</span> <span className="border-b border-dotted border-black flex-1 font-bold pl-1">{formData.client_name}</span></p>
-                  <p className="flex items-center font-bengali"><span className="font-bold w-18">Address:</span> <span className="border-b border-dotted border-black flex-1 pl-1 text-[11px]">{formData.client_address || 'Sakhipur, Tangail'}</span></p>
+             <div className="grid grid-cols-2 gap-x-10 mb-3 text-[12px] px-1">
+                <div className="space-y-1">
+                  <p className="flex items-center"><span className="font-bold w-16">Serial No:</span> <span className="border-b border-dotted border-black flex-1 font-bold pl-1">{formData.invoice_no}</span></p>
+                  <p className="flex items-center font-bengali"><span className="font-bold w-16">Name:</span> <span className="border-b border-dotted border-black flex-1 font-bold pl-1">{formData.client_name}</span></p>
+                  <p className="flex items-center font-bengali"><span className="font-bold w-16">Address:</span> <span className="border-b border-dotted border-black flex-1 pl-1 text-[11px]">{formData.client_address || 'Sakhipur, Tangail'}</span></p>
                 </div>
-                <div className="space-y-2">
-                  <p className="flex items-center justify-end"><span className="font-bold mr-2">Date:</span> <span className="border-b border-dotted border-black min-w-[120px] text-center font-bold pl-1">{new Date(formData.memo_date || '').toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'})}</span></p>
-                  <p className="flex items-center justify-end"><span className="font-bold mr-2">Mobile:</span> <span className="border-b border-dotted border-black min-w-[120px] text-center font-bold pl-1 font-sans">{formData.client_mobile || '01xxx-xxxxxx'}</span></p>
+                <div className="space-y-1">
+                  <p className="flex items-center justify-end"><span className="font-bold mr-2">Date:</span> <span className="border-b border-dotted border-black min-w-[100px] text-center font-bold pl-1">{new Date(formData.memo_date || '').toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'})}</span></p>
+                  <p className="flex items-center justify-end"><span className="font-bold mr-2">Mobile:</span> <span className="border-b border-dotted border-black min-w-[100px] text-center font-bold pl-1 font-sans">{formData.client_mobile || '01xxx-xxxxxx'}</span></p>
                 </div>
              </div>
 
-             {/* Table Section - Removed outer box border */}
+             {/* Table Section */}
              <div className="flex-grow">
-               <table className="w-full text-[11px]">
+               <table className="w-full border-collapse border border-black text-[11px]">
                  <thead>
-                   <tr className="border-b-2 border-black">
-                     <th className="p-2 w-8 text-center uppercase">SL</th>
-                     <th className="p-2 text-left uppercase pl-4">Description of Details</th>
-                     <th className="p-2 w-16 text-center uppercase">Qty.</th>
-                     <th className="p-2 w-20 text-center uppercase">Rate</th>
-                     <th className="p-2 w-24 text-right uppercase pr-4">Total (৳)</th>
+                   <tr className="border-b border-black">
+                     <th className="p-1 border-r border-black w-8 text-center uppercase">SL NO</th>
+                     <th className="p-1 border-r border-black text-center uppercase">DETAILS</th>
+                     <th className="p-1 border-r border-black w-16 text-center uppercase">QTY.</th>
+                     <th className="p-1 border-r border-black w-20 text-center uppercase">RATE (৳)</th>
+                     <th className="p-1 w-24 text-center uppercase">TOTAL (৳)</th>
                    </tr>
                  </thead>
-                 <tbody className="divide-y divide-gray-300">
+                 <tbody>
                    {formData.items?.map((item, i) => (
-                     <tr key={i} className="h-10 align-middle">
-                       <td className="p-2 text-center">{i+1}</td>
-                       <td className="p-2 font-bengali pl-4 font-bold">{item.details} {item.len && item.wid ? `(${item.len}x${item.wid} ft)` : ''}</td>
-                       <td className="p-2 text-center">{item.qty}</td>
-                       <td className="p-2 text-center">{Number(item.rate).toLocaleString()}</td>
-                       <td className="p-2 text-right pr-4 font-bold">{Number(item.total).toLocaleString()}/-</td>
+                     <tr key={i} className="border-b border-black h-8 align-top">
+                       <td className="p-1 border-r border-black text-center">{i+1}</td>
+                       <td className="p-1 border-r border-black font-bengali pl-2 font-bold">{item.details} {item.len && item.wid ? `(${item.len}x${item.wid})` : ''}</td>
+                       <td className="p-1 border-r border-black text-center">{item.qty}</td>
+                       <td className="p-1 border-r border-black text-center">{Number(item.rate).toFixed(0)}</td>
+                       <td className="p-1 text-right pr-2 font-bold">{Number(item.total).toFixed(0)}/-</td>
                      </tr>
                    ))}
-                   {/* Empty space filler */}
-                   {[...Array(Math.max(0, 6 - (formData.items?.length || 0)))].map((_, i) => (
-                     <tr key={`empty-${i}`} className="h-10 border-none">
-                       <td colSpan={5}></td>
+                   {/* Empty rows to fill space */}
+                   {[...Array(Math.max(0, 8 - (formData.items?.length || 0)))].map((_, i) => (
+                     <tr key={`empty-${i}`} className="border-b border-black h-8">
+                       <td className="p-1 border-r border-black"></td>
+                       <td className="p-1 border-r border-black"></td>
+                       <td className="p-1 border-r border-black"></td>
+                       <td className="p-1 border-r border-black"></td>
+                       <td className="p-1"></td>
                      </tr>
                    ))}
                  </tbody>
-                 <tfoot className="border-t-2 border-black">
-                    <tr>
-                        <td colSpan={3}></td>
-                        <td className="p-2 font-bold text-[10px] text-right">Total:</td>
-                        <td className="p-2 text-right font-black pr-4">৳{(Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0)}/-</td>
+                 <tfoot>
+                    <tr className="border-t border-black">
+                        <td colSpan={3} className="border-none"></td>
+                        <td className="p-1 border-l border-b border-black font-bold text-[10px] text-right">Total (৳)</td>
+                        <td className="p-1 border-l border-b border-black text-right font-black pr-2">৳{(Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0)}/-</td>
                     </tr>
                     <tr>
-                        <td colSpan={3}></td>
-                        <td className="p-2 font-bold text-[10px] text-right">Paid:</td>
-                        <td className="p-2 text-right font-black pr-4 text-green-700">৳{Number(formData.advance).toLocaleString()}/-</td>
+                        <td colSpan={3} className="border-none"></td>
+                        <td className="p-1 border-l border-b border-black font-bold text-[10px] text-right">Advance (৳)</td>
+                        <td className="p-1 border-l border-b border-black text-right font-black pr-2">৳{Number(formData.advance).toFixed(0)}/-</td>
                     </tr>
-                    <tr className="bg-gray-100">
-                        <td colSpan={3}></td>
-                        <td className="p-2 font-black text-[11px] text-right uppercase">Due:</td>
-                        <td className="p-2 text-right font-black pr-4 text-red-600">৳{((Number(formData.due) || 0) + (includePreviousDue ? prevDueAmount : 0)).toLocaleString()}/-</td>
+                    <tr>
+                        <td colSpan={3} className="border-none"></td>
+                        <td className="p-1 border-l border-black font-bold text-[10px] text-right bg-gray-50">Due (৳)</td>
+                        <td className="p-1 border-l border-black text-right font-black pr-2 bg-gray-50">৳{((Number(formData.due) || 0) + (includePreviousDue ? prevDueAmount : 0)).toFixed(0)}/-</td>
                     </tr>
                  </tfoot>
                </table>
              </div>
 
              {/* Footer Words and Signature */}
-             <div className="mt-8 flex justify-between items-end px-1 pb-10">
-                <div className="text-[11px] font-bold">
-                    <span className="italic mr-2">In Words:</span>
+             <div className="mt-4 flex justify-between items-end px-1">
+                <div className="text-[10px] font-bold">
+                    <span className="italic mr-1">In Word:</span>
                     <span className="border-b border-black pb-0.5">{formData.in_word}</span>
                 </div>
-                <div className="text-center">
-                    <div className="w-32 border-t border-black pt-1 text-[10px] font-bold">
-                        <p>Authorized Signature</p>
+                <div className="text-center w-28">
+                    <div className="border-t border-black pt-0.5 text-[9px] font-bold">
+                        <p>Authority</p>
+                        <p className="uppercase mt-0.5 opacity-60 text-[7px]">Signature</p>
                     </div>
                 </div>
              </div>
