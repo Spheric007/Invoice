@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Invoice, Customer, InvoiceItem } from '../types';
 import { db } from '../services/db';
 import { convertToWords, formatDisplayDate } from '../utils/helpers';
@@ -194,6 +194,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
 
   const handlePrint = async () => {
     if (!formData.client_name) return alert("Fill customer name first");
+    
     const isSaved = await saveInvoice();
     if (!isSaved) return;
 
@@ -205,24 +206,23 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       const clone = memoContent.cloneNode(true) as HTMLElement;
       printRoot.appendChild(clone);
       
-      // Critical for mobile and some browsers to ensure styling loads
+      // We use a small delay and a dummy event trigger to ensure print dialog fires
       setTimeout(() => {
         window.print();
-        // Option to refresh or navigate after print if needed
-      }, 300);
+      }, 500);
     }
   };
 
   return (
     <div className="animate-in slide-in-from-bottom duration-500 pb-44 px-4 md:px-0">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 no-print">
         <h1 className="text-3xl font-bold text-[#333]">{editInvoiceNo ? 'Edit Invoice' : 'Create New Invoice'}</h1>
         <button onClick={() => navigateTo(View.Invoices)} className="text-lightText hover:text-primary transition-colors flex items-center font-bold">
           <i className="fas fa-times mr-2 text-lg"></i> Close
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 no-print">
         <div className="lg:col-span-2 space-y-8">
           {/* Customer & Info Card */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
@@ -467,14 +467,14 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
 
       {/* PRINT TEMPLATE - A5 SIZE DESIGNED FOR A4 LANDSCAPE HALF */}
       <div className="hidden">
-        <div ref={memoRef} className="memo-container bg-white mx-auto">
-           <div className="flex flex-col h-full border-2 border-black p-4 font-bengali">
+        <div ref={memoRef} className="memo-container bg-white">
+           <div className="flex flex-col h-full border-2 border-black p-4 font-bengali text-black">
              {/* HEADER */}
              <div className="text-center border-b-2 border-black pb-4 mb-4">
                 <div className="flex justify-center mb-2">
                   <h2 className="text-[12px] font-black uppercase tracking-[3px] border-2 border-black px-6 py-1 inline-block">Cash Memo / ক্যাশ মেমো</h2>
                 </div>
-                <h1 className="text-[26px] font-black text-black leading-none mt-1 uppercase tracking-tighter">MASTER COMPUTER & PRINTING PRESS</h1>
+                <h1 className="text-[26px] font-black leading-none mt-1 uppercase tracking-tighter">MASTER COMPUTER & PRINTING PRESS</h1>
                 <div className="flex justify-between items-center mt-3 border-t-2 border-black pt-2 px-2 font-black text-[12px]">
                   <span>Proprietor: S.M. Shahjahan</span>
                   <span className="bg-black text-white px-3 py-0.5 rounded-sm font-sans">01720-365191</span>
@@ -484,7 +484,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
 
              {/* CLIENT INFO */}
              <div className="grid grid-cols-2 gap-4 mb-4 text-[13px] border-b-2 border-gray-400 pb-3 px-1">
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 text-left">
                   <p className="flex items-center"><span className="font-black w-14">Serial:</span> <span className="border-b-2 border-dotted border-black flex-1 font-black">#{formData.invoice_no}</span></p>
                   <p className="flex items-center"><span className="font-black w-14">Name:</span> <span className="border-b-2 border-dotted border-black flex-1 font-black text-[14px]">{formData.client_name}</span></p>
                   <p className="flex items-center"><span className="font-black w-14">Address:</span> <span className="border-b-2 border-dotted border-black flex-1 font-medium">{formData.client_address || '...'}</span></p>
@@ -496,7 +496,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
              </div>
 
              {/* TABLE */}
-             <div className="flex-grow overflow-hidden">
+             <div className="flex-grow">
                <table className="w-full border-collapse border-2 border-black text-[13px]">
                  <thead>
                    <tr className="bg-gray-100 font-black border-b-2 border-black h-10">
@@ -535,7 +535,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
 
              {/* FOOTER */}
              <div className="mt-4 flex justify-between items-start font-black">
-                <div className="w-[60%] border-2 border-black p-3 bg-gray-50 rounded-sm">
+                <div className="w-[60%] border-2 border-black p-3 bg-gray-50 rounded-sm text-left">
                   <span className="text-[9px] uppercase tracking-wider text-gray-500 mb-1 block">In Words / কথায়:</span>
                   <p className="italic text-[14px] leading-tight text-black">
                     {convertToWords((Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0))}

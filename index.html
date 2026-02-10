@@ -49,18 +49,21 @@
         #print-root { 
           display: block !important; 
           visibility: visible !important;
-          position: absolute;
+          position: fixed;
           top: 0;
           left: 0;
           width: 100%;
+          height: 100%;
+          z-index: 9999;
+          background: white;
         }
         .memo-container {
           width: 148mm !important; /* A5 Width */
           height: 210mm !important; /* A5 Height */
           margin: 0 !important;
-          padding: 8mm !important;
-          border-right: 1px dashed #ccc !important; /* Optional cut line */
-          float: left;
+          padding: 10mm !important;
+          box-sizing: border-box;
+          float: left; /* Aligns to left half of A4 landscape */
         }
         * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       }
@@ -76,10 +79,12 @@
 <script type="importmap">
 {
   "imports": {
-    "react/": "https://esm.sh/react@^19.2.4/",
     "react": "https://esm.sh/react@^19.2.4",
+    "react-dom": "https://esm.sh/react-dom@^19.2.4",
+    "react-dom/client": "https://esm.sh/react-dom@^19.2.4/client",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.45.3",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.45.3"
+    "react/": "https://esm.sh/react@^19.2.4/"
   }
 }
 </script>
@@ -87,5 +92,7 @@
 <body class="bg-secondary font-poppins text-[#333333]">
     <div id="root"></div>
     <div id="print-root"></div>
+    <!-- Entry point for the application -->
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>
