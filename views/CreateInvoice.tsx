@@ -206,7 +206,6 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       const clone = memoContent.cloneNode(true) as HTMLElement;
       printRoot.appendChild(clone);
       
-      // We use a small delay and a dummy event trigger to ensure print dialog fires
       setTimeout(() => {
         window.print();
       }, 500);
@@ -224,7 +223,6 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 no-print">
         <div className="lg:col-span-2 space-y-8">
-          {/* Customer & Info Card */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
             <h3 className="font-bold mb-6 text-primary text-xl border-b pb-2 flex items-center">
               <i className="fas fa-user-circle mr-2"></i> Memo Header
@@ -304,7 +302,6 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
             </div>
           </div>
 
-          {/* Table Card */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-bold text-primary text-xl border-b pb-2 flex items-center">
@@ -376,7 +373,6 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
             </div>
           </div>
 
-          {/* Payment Card */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
             <h3 className="font-bold mb-8 text-2xl flex items-center border-b pb-2">
               <i className="fas fa-money-check-alt mr-3 text-primary"></i> Financials
@@ -421,7 +417,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
           </div>
         </div>
 
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 no-print">
            <div className="bg-white p-8 rounded-2xl border border-border sticky top-24 shadow-md">
               <h4 className="font-black mb-6 flex items-center gap-2 text-primary border-b pb-3 uppercase tracking-tighter text-lg">
                 <i className="fas fa-magic"></i> Memo Actions
@@ -438,131 +434,115 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
         </div>
       </div>
 
-      {/* STICKY ACTION BAR */}
       <div className="fixed bottom-0 left-0 md:left-[250px] right-0 bg-white/90 backdrop-blur-md border-t p-6 flex flex-wrap items-center justify-between no-print shadow-[0_-25px_60px_rgba(0,0,0,0.15)] z-[100] gap-4">
         <div>
-           <button 
-             onClick={saveInvoice}
-             disabled={isSaving}
-             className="bg-primary text-white px-10 py-4.5 rounded-2xl font-black shadow-2xl shadow-primary/30 flex items-center gap-3 hover:scale-105 active:scale-95 transition-all text-lg"
-           >
-              <i className="fas fa-cloud-upload-alt text-xl"></i> {editInvoiceNo ? 'Update Records' : 'Submit & Save'}
+           <button onClick={saveInvoice} disabled={isSaving} className="bg-primary text-white px-10 py-4.5 rounded-2xl font-black shadow-2xl shadow-primary/30 flex items-center gap-3 hover:scale-105 active:scale-95 transition-all text-lg">
+              <i className="fas fa-cloud-upload-alt text-xl"></i> Submit & Save
            </button>
         </div>
         <div className="flex flex-wrap gap-4">
-           <button 
-             onClick={markAsFullyPaid}
-             className="bg-success text-white px-8 py-4.5 rounded-2xl font-black shadow-2xl shadow-success/30 flex items-center gap-3 hover:scale-105 active:scale-95 transition-all text-lg"
-           >
-              <i className="fas fa-hand-holding-usd text-xl"></i> Final Payment
-           </button>
-           <button 
-             onClick={handlePrint}
-             className="bg-white border-3 border-gray-900 text-gray-900 px-8 py-4.5 rounded-2xl font-black flex items-center gap-3 hover:bg-gray-900 hover:text-white active:scale-95 transition-all shadow-xl text-lg"
-           >
+           <button onClick={handlePrint} className="bg-white border-3 border-gray-900 text-gray-900 px-8 py-4.5 rounded-2xl font-black flex items-center gap-3 hover:bg-gray-900 hover:text-white active:scale-95 transition-all shadow-xl text-lg">
               <i className="fas fa-print text-xl"></i> Print Memo
            </button>
         </div>
       </div>
 
-      {/* PRINT TEMPLATE - A5 SIZE DESIGNED FOR A4 LANDSCAPE HALF */}
-      <div className="hidden">
-        <div ref={memoRef} className="memo-container bg-white">
-           <div className="flex flex-col h-full border-2 border-black p-4 font-bengali text-black">
-             {/* HEADER */}
-             <div className="text-center border-b-2 border-black pb-4 mb-4">
-                <div className="flex justify-center mb-2">
-                  <h2 className="text-[12px] font-black uppercase tracking-[3px] border-2 border-black px-6 py-1 inline-block">Cash Memo / ক্যাশ মেমো</h2>
+      {/* PRINT TEMPLATE - EXACTLY LIKE SCREENSHOT */}
+      <div id="memo-print-template" className="hidden">
+        <div ref={memoRef} className="memo-container bg-white text-black font-serif">
+           <div className="memo-inner flex flex-col h-full border-none">
+             {/* Header Section */}
+             <div className="text-center mb-1">
+                <p className="text-[11px] font-bold uppercase tracking-[1px] mb-0.5">Cash Memo</p>
+                <h1 className="text-[20px] font-bold leading-none mb-1">MASTER COMPUTER & PRINTING PRESS</h1>
+                
+                <div className="flex justify-between items-center border-t border-b border-black py-0.5 px-1 text-[11px] font-bold">
+                    <span>Proprietor: S.M. Shahjahan</span>
+                    <span className="font-sans">01720-365191</span>
                 </div>
-                <h1 className="text-[26px] font-black leading-none mt-1 uppercase tracking-tighter">MASTER COMPUTER & PRINTING PRESS</h1>
-                <div className="flex justify-between items-center mt-3 border-t-2 border-black pt-2 px-2 font-black text-[12px]">
-                  <span>Proprietor: S.M. Shahjahan</span>
-                  <span className="bg-black text-white px-3 py-0.5 rounded-sm font-sans">01720-365191</span>
-                </div>
-                <div className="border border-black px-3 py-1 mt-2 mx-auto inline-block text-[10px] font-bold">Primary Teachers Association Market, Sakhipur, Tangail</div>
+                
+                <p className="text-[9px] font-medium italic mt-1 leading-tight">All types of composing, graphic design, and printing work are done here.</p>
+                <p className="text-[9px] font-bold leading-tight">Primary Teachers Association Market, Sakhipur, Tangail.</p>
+                <div className="border-b border-black mt-1 mb-3"></div>
              </div>
 
-             {/* CLIENT INFO */}
-             <div className="grid grid-cols-2 gap-4 mb-4 text-[13px] border-b-2 border-gray-400 pb-3 px-1">
-                <div className="space-y-1.5 text-left">
-                  <p className="flex items-center"><span className="font-black w-14">Serial:</span> <span className="border-b-2 border-dotted border-black flex-1 font-black">#{formData.invoice_no}</span></p>
-                  <p className="flex items-center"><span className="font-black w-14">Name:</span> <span className="border-b-2 border-dotted border-black flex-1 font-black text-[14px]">{formData.client_name}</span></p>
-                  <p className="flex items-center"><span className="font-black w-14">Address:</span> <span className="border-b-2 border-dotted border-black flex-1 font-medium">{formData.client_address || '...'}</span></p>
+             {/* Client Info Section */}
+             <div className="grid grid-cols-2 gap-x-10 mb-3 text-[12px] px-1">
+                <div className="space-y-1">
+                  <p className="flex items-center"><span className="font-bold w-16">Serial No:</span> <span className="border-b border-dotted border-black flex-1 font-bold pl-1">{formData.invoice_no}</span></p>
+                  <p className="flex items-center font-bengali"><span className="font-bold w-16">Name:</span> <span className="border-b border-dotted border-black flex-1 font-bold pl-1">{formData.client_name}</span></p>
+                  <p className="flex items-center font-bengali"><span className="font-bold w-16">Address:</span> <span className="border-b border-dotted border-black flex-1 pl-1 text-[11px]">{formData.client_address || 'Sakhipur, Tangail'}</span></p>
                 </div>
-                <div className="text-right space-y-1.5 pl-6">
-                  <p className="flex items-center justify-end"><span className="font-black mr-2">Date:</span> <span className="border-b-2 border-dotted border-black min-w-[100px] text-center font-black">{formatDisplayDate(formData.memo_date)}</span></p>
-                  <p className="flex items-center justify-end"><span className="font-black mr-2">Mobile:</span> <span className="border-b-2 border-dotted border-black min-w-[100px] text-center font-black font-sans">{formData.client_mobile || '...'}</span></p>
+                <div className="space-y-1">
+                  <p className="flex items-center justify-end"><span className="font-bold mr-2">Date:</span> <span className="border-b border-dotted border-black min-w-[100px] text-center font-bold pl-1">{new Date(formData.memo_date || '').toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'})}</span></p>
+                  <p className="flex items-center justify-end"><span className="font-bold mr-2">Mobile:</span> <span className="border-b border-dotted border-black min-w-[100px] text-center font-bold pl-1 font-sans">{formData.client_mobile || '01xxx-xxxxxx'}</span></p>
                 </div>
              </div>
 
-             {/* TABLE */}
+             {/* Table Section */}
              <div className="flex-grow">
-               <table className="w-full border-collapse border-2 border-black text-[13px]">
+               <table className="w-full border-collapse border border-black text-[11px]">
                  <thead>
-                   <tr className="bg-gray-100 font-black border-b-2 border-black h-10">
-                     <th className="p-1 border-r-2 border-black w-10 text-center">SL</th>
-                     <th className="p-1 border-r-2 border-black text-left pl-3">Work Description</th>
-                     <th className="p-1 border-r-2 border-black w-24 text-center">Qty / Size</th>
-                     <th className="p-1 border-r-2 border-black w-20 text-center">Rate</th>
-                     <th className="p-1 text-right w-24 pr-3">Total (৳)</th>
+                   <tr className="border-b border-black">
+                     <th className="p-1 border-r border-black w-8 text-center uppercase">SL NO</th>
+                     <th className="p-1 border-r border-black text-center uppercase">DETAILS</th>
+                     <th className="p-1 border-r border-black w-16 text-center uppercase">QTY.</th>
+                     <th className="p-1 border-r border-black w-20 text-center uppercase">RATE (৳)</th>
+                     <th className="p-1 w-24 text-center uppercase">TOTAL (৳)</th>
                    </tr>
                  </thead>
-                 <tbody className="font-bold">
+                 <tbody>
                    {formData.items?.map((item, i) => (
-                     <tr key={i} className="border-b border-black h-9">
-                       <td className="p-1 border-r-2 border-black text-center">{i+1}</td>
-                       <td className="p-1 border-r-2 border-black font-black pl-3">{item.details}</td>
-                       <td className="p-1 border-r-2 border-black text-center font-sans text-[11px]">
-                          {item.len && item.wid ? `${item.len}'x${item.wid}' (${item.qty})` : item.qty}
-                       </td>
-                       <td className="p-1 border-r-2 border-black text-center">৳{Number(item.rate).toFixed(0)}</td>
-                       <td className="p-1 text-right font-black pr-3">{Number(item.total).toFixed(0)}/-</td>
+                     <tr key={i} className="border-b border-black h-8 align-top">
+                       <td className="p-1 border-r border-black text-center">{i+1}</td>
+                       <td className="p-1 border-r border-black font-bengali pl-2 font-bold">{item.details} {item.len && item.wid ? `(${item.len}x${item.wid})` : ''}</td>
+                       <td className="p-1 border-r border-black text-center">{item.qty}</td>
+                       <td className="p-1 border-r border-black text-center">{Number(item.rate).toFixed(0)}</td>
+                       <td className="p-1 text-right pr-2 font-bold">{Number(item.total).toFixed(0)}/-</td>
                      </tr>
                    ))}
-                   
-                   {includePreviousDue && prevDueAmount > 0 && (
-                     <tr className="bg-gray-50 font-black border-t-2 border-black h-9 text-red-700">
-                       <td className="p-1 border-r-2 border-black text-center">#</td>
-                       <td className="p-1 border-r-2 border-black pl-3">সাবেক বকেয়া (Previous Due)</td>
-                       <td className="p-1 border-r-2 border-black text-center">-</td>
-                       <td className="p-1 border-r-2 border-black text-center">-</td>
-                       <td className="p-1 text-right font-black pr-3">{prevDueAmount.toFixed(0)}/-</td>
+                   {/* Empty rows to fill space */}
+                   {[...Array(Math.max(0, 8 - (formData.items?.length || 0)))].map((_, i) => (
+                     <tr key={`empty-${i}`} className="border-b border-black h-8">
+                       <td className="p-1 border-r border-black"></td>
+                       <td className="p-1 border-r border-black"></td>
+                       <td className="p-1 border-r border-black"></td>
+                       <td className="p-1 border-r border-black"></td>
+                       <td className="p-1"></td>
                      </tr>
-                   )}
+                   ))}
                  </tbody>
+                 <tfoot>
+                    <tr className="border-t border-black">
+                        <td colSpan={3} className="border-none"></td>
+                        <td className="p-1 border-l border-b border-black font-bold text-[10px] text-right">Total (৳)</td>
+                        <td className="p-1 border-l border-b border-black text-right font-black pr-2">৳{(Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0)}/-</td>
+                    </tr>
+                    <tr>
+                        <td colSpan={3} className="border-none"></td>
+                        <td className="p-1 border-l border-b border-black font-bold text-[10px] text-right">Advance (৳)</td>
+                        <td className="p-1 border-l border-b border-black text-right font-black pr-2">৳{Number(formData.advance).toFixed(0)}/-</td>
+                    </tr>
+                    <tr>
+                        <td colSpan={3} className="border-none"></td>
+                        <td className="p-1 border-l border-black font-bold text-[10px] text-right bg-gray-50">Due (৳)</td>
+                        <td className="p-1 border-l border-black text-right font-black pr-2 bg-gray-50">৳{((Number(formData.due) || 0) + (includePreviousDue ? prevDueAmount : 0)).toFixed(0)}/-</td>
+                    </tr>
+                 </tfoot>
                </table>
              </div>
 
-             {/* FOOTER */}
-             <div className="mt-4 flex justify-between items-start font-black">
-                <div className="w-[60%] border-2 border-black p-3 bg-gray-50 rounded-sm text-left">
-                  <span className="text-[9px] uppercase tracking-wider text-gray-500 mb-1 block">In Words / কথায়:</span>
-                  <p className="italic text-[14px] leading-tight text-black">
-                    {convertToWords((Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0))}
-                  </p>
+             {/* Footer Words and Signature */}
+             <div className="mt-4 flex justify-between items-end px-1">
+                <div className="text-[10px] font-bold">
+                    <span className="italic mr-1">In Word:</span>
+                    <span className="border-b border-black pb-0.5">{formData.in_word}</span>
                 </div>
-                <div className="w-44 space-y-0.5 border-l-2 border-black pl-4">
-                   <div className="flex justify-between items-center text-[12px] py-1 border-b border-black/10">
-                     <span>Total:</span>
-                     <span>৳{(Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0)}/-</span>
-                   </div>
-                   <div className="flex justify-between items-center text-[12px] py-1 border-b border-black/10 text-green-700">
-                     <span>Paid:</span>
-                     <span>৳{Number(formData.advance).toFixed(0)}/-</span>
-                   </div>
-                   <div className="flex justify-between items-center text-[15px] pt-1.5 text-red-600 bg-gray-50 px-1 font-black">
-                     <span>DUE:</span>
-                     <span>৳{((Number(formData.due) || 0) + (includePreviousDue ? prevDueAmount : 0)).toFixed(0)}/-</span>
-                   </div>
-                </div>
-             </div>
-
-             {/* SIGNATURES */}
-             <div className="flex justify-between mt-16 px-6 text-[10px] font-black uppercase tracking-wider">
-                <div className="text-center w-28 border-t-2 border-black pt-1">Customer Sign</div>
-                <div className="text-center w-36 border-t-2 border-black pt-1">
-                  Authorized Sign
-                  <p className="text-[7px] text-gray-500 font-bold normal-case mt-0.5">Master Computer & Press</p>
+                <div className="text-center w-28">
+                    <div className="border-t border-black pt-0.5 text-[9px] font-bold">
+                        <p>Authority</p>
+                        <p className="uppercase mt-0.5 opacity-60 text-[7px]">Signature</p>
+                    </div>
                 </div>
              </div>
            </div>

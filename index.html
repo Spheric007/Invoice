@@ -61,9 +61,13 @@
           width: 148mm !important; /* A5 Width */
           height: 210mm !important; /* A5 Height */
           margin: 0 !important;
-          padding: 10mm !important;
+          padding: 10mm 15mm !important;
           box-sizing: border-box;
           float: left; /* Aligns to left half of A4 landscape */
+        }
+        /* Remove any outer borders in print */
+        .memo-container, .memo-inner {
+            border: none !important;
         }
         * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       }
@@ -92,7 +96,6 @@
 <body class="bg-secondary font-poppins text-[#333333]">
     <div id="root"></div>
     <div id="print-root"></div>
-    <!-- Entry point for the application -->
     <script type="module" src="/index.tsx"></script>
 </body>
 </html>
