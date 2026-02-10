@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Pro - Master Computer v9.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Hind+Siliguri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#6a5acd',
+              secondary: '#f0f2f5',
+              success: '#4CAF50',
+              warning: '#ff9800',
+              danger: '#f44336',
+              lightText: '#666666',
+              border: '#e0e0e0'
+            },
+            fontFamily: {
+              poppins: ['Poppins', 'sans-serif'],
+              bengali: ['Hind Siliguri', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      @media print {
+        @page {
+          size: A4 landscape;
+          margin: 0;
+        }
+        html, body {
+          height: 100%;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: white !important;
+        }
+        .no-print { display: none !important; }
+        #root { display: none !important; }
+        #print-root { 
+          display: block !important; 
+          visibility: visible !important;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+        }
+        .memo-container {
+          width: 148mm !important; /* A5 Width */
+          height: 210mm !important; /* A5 Height */
+          margin: 0 !important;
+          padding: 8mm !important;
+          border-right: 1px dashed #ccc !important; /* Optional cut line */
+          float: left;
+        }
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      }
+      
+      #print-root { display: none; }
+      #sidebar { transition: transform 0.3s ease-in-out; }
+
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: #f1f1f1; }
+      ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.45.3"
+  }
+}
+</script>
+</head>
+<body class="bg-secondary font-poppins text-[#333333]">
+    <div id="root"></div>
+    <div id="print-root"></div>
+</body>
+</html>
