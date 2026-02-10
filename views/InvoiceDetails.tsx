@@ -90,81 +90,91 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
       </div>
 
       <div className="flex justify-center bg-gray-200/50 p-4 md:p-10 rounded-2xl overflow-x-auto">
-        <div ref={memoRef} className="bg-white p-8 border-2 border-black" style={{ width: '148mm', minHeight: '210mm' }}>
-           <div className="flex flex-col h-full border-2 border-black p-4 font-bengali text-black">
-              {/* Header */}
-              <div className="text-center border-b-2 border-black pb-4 mb-4">
-                 <h2 className="text-[12px] font-black uppercase tracking-[3px] border-2 border-black px-6 py-1 inline-block mb-3">Cash Memo / ক্যাশ মেমো</h2>
-                 <h1 className="text-[26px] font-black tracking-tighter uppercase">MASTER COMPUTER & PRINTING PRESS</h1>
-                 <div className="flex justify-between items-center mt-3 border-t-2 border-black pt-2 px-2 font-black text-[12px]">
-                   <span>Proprietor: S.M. Shahjahan</span>
-                   <span className="bg-black text-white px-3 py-0.5 rounded">01720-365191</span>
-                 </div>
-                 <div className="border border-black px-3 py-1 mt-2 mx-auto inline-block text-[10px] font-bold">Primary association Market, Sakhipur, Tangail</div>
-              </div>
+        <div ref={memoRef} className="memo-container bg-white" style={{ width: '148mm', height: '210mm' }}>
+           <div className="memo-inner flex flex-col h-full border-none p-4 font-serif text-black">
+              {/* Header Section */}
+              <div className="text-center mb-1">
+                <p className="text-[11px] font-bold uppercase tracking-[1px] mb-0.5">Cash Memo</p>
+                <h1 className="text-[20px] font-bold leading-none mb-1">MASTER COMPUTER & PRINTING PRESS</h1>
+                
+                <div className="flex justify-between items-center py-1 px-1 text-[11px] font-bold">
+                    <span className="border-b border-black">Proprietor: S.M. Shahjahan</span>
+                    <span className="font-sans border-b border-black">01720-365191</span>
+                </div>
+                
+                <p className="text-[9px] font-medium italic mt-2 leading-tight">All types of composing, graphic design, and printing work are done here.</p>
+                <p className="text-[9px] font-bold leading-tight">Primary Teachers Association Market, Sakhipur, Tangail.</p>
+                <div className="mt-2 mb-4 border-b border-black"></div>
+             </div>
 
-              {/* Info */}
-              <div className="grid grid-cols-2 gap-4 mb-4 text-[13px] border-b-2 border-gray-200 pb-3 px-1">
-                 <div className="space-y-1.5">
-                   <p className="flex"><span className="font-black w-14">Serial:</span> <span className="border-b border-black flex-1 font-black">#{invoice.invoice_no}</span></p>
-                   <p className="flex"><span className="font-black w-14">Name:</span> <span className="border-b border-black flex-1 font-black">{invoice.client_name}</span></p>
-                   <p className="flex"><span className="font-black w-14">Address:</span> <span className="border-b border-black flex-1 font-medium">{invoice.client_address || '...'}</span></p>
-                 </div>
-                 <div className="text-right space-y-1.5 pl-4">
-                   <p className="flex justify-end"><span className="font-black mr-2">Date:</span> <span className="border-b border-black min-w-[100px] text-center font-black">{formatDisplayDate(invoice.memo_date)}</span></p>
-                   <p className="flex justify-end"><span className="font-black mr-2">Mobile:</span> <span className="border-b border-black min-w-[100px] text-center font-black">{invoice.client_mobile || '...'}</span></p>
-                 </div>
-              </div>
+             {/* Client Info Section */}
+             <div className="grid grid-cols-2 gap-x-12 mb-6 text-[12px] px-1">
+                <div className="space-y-2">
+                  <p className="flex items-center"><span className="font-bold w-18">Serial No:</span> <span className="border-b border-dotted border-black flex-1 font-bold pl-1">#{invoice.invoice_no}</span></p>
+                  <p className="flex items-center font-bengali"><span className="font-bold w-18">Name:</span> <span className="border-b border-dotted border-black flex-1 font-bold pl-1">{invoice.client_name}</span></p>
+                  <p className="flex items-center font-bengali"><span className="font-bold w-18">Address:</span> <span className="border-b border-dotted border-black flex-1 pl-1 text-[11px]">{invoice.client_address || 'Sakhipur, Tangail'}</span></p>
+                </div>
+                <div className="space-y-2">
+                  <p className="flex items-center justify-end"><span className="font-bold mr-2">Date:</span> <span className="border-b border-dotted border-black min-w-[120px] text-center font-bold pl-1">{new Date(invoice.memo_date || '').toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'})}</span></p>
+                  <p className="flex items-center justify-end"><span className="font-bold mr-2">Mobile:</span> <span className="border-b border-dotted border-black min-w-[120px] text-center font-bold pl-1 font-sans">{invoice.client_mobile || '01xxx-xxxxxx'}</span></p>
+                </div>
+             </div>
 
-              {/* Items Table */}
-              <div className="flex-grow">
-                <table className="w-full border-2 border-black text-[13px] border-collapse">
-                  <thead>
-                    <tr className="bg-gray-100 font-black border-b-2 border-black">
-                      <th className="p-2 border-r-2 border-black w-10 text-center">SL</th>
-                      <th className="p-2 border-r-2 border-black text-left pl-3">Work Description</th>
-                      <th className="p-2 border-r-2 border-black w-24 text-center">Qty / Size</th>
-                      <th className="p-2 border-r-2 border-black w-20 text-center">Rate</th>
-                      <th className="p-2 text-right w-24 pr-3">Total (৳)</th>
+             {/* Table Section */}
+             <div className="flex-grow">
+               <table className="w-full text-[11px]">
+                 <thead>
+                   <tr className="border-b-2 border-black">
+                     <th className="p-2 w-8 text-center uppercase">SL</th>
+                     <th className="p-2 text-left uppercase pl-4">Description of Details</th>
+                     <th className="p-2 w-16 text-center uppercase">Qty.</th>
+                     <th className="p-2 w-20 text-center uppercase">Rate</th>
+                     <th className="p-2 w-24 text-right uppercase pr-4">Total (৳)</th>
+                   </tr>
+                 </thead>
+                 <tbody className="divide-y divide-gray-300">
+                   {invoice.items.map((item, i) => (
+                     <tr key={i} className="h-10 align-middle">
+                       <td className="p-2 text-center">{i+1}</td>
+                       <td className="p-2 font-bengali pl-4 font-bold">{item.details} {item.len && item.wid ? `(${item.len}x${item.wid} ft)` : ''}</td>
+                       <td className="p-2 text-center">{item.qty}</td>
+                       <td className="p-2 text-center">{Number(item.rate).toLocaleString()}</td>
+                       <td className="p-2 text-right pr-4 font-bold">{Number(item.total).toLocaleString()}/-</td>
+                     </tr>
+                   ))}
+                 </tbody>
+                 <tfoot className="border-t-2 border-black">
+                    <tr>
+                        <td colSpan={3}></td>
+                        <td className="p-2 font-bold text-[10px] text-right">Total:</td>
+                        <td className="p-2 text-right font-black pr-4">৳{Number(invoice.grand_total).toLocaleString()}/-</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {invoice.items.map((item, i) => (
-                      <tr key={i} className="border-b border-black h-9 font-black">
-                        <td className="p-1 border-r-2 border-black text-center">{i+1}</td>
-                        <td className="p-1 border-r-2 border-black pl-3">{item.details}</td>
-                        <td className="p-1 border-r-2 border-black text-center font-sans text-[11px]">
-                          {item.len && item.wid ? `${item.len}'x${item.wid}' (${item.qty})` : item.qty}
-                        </td>
-                        <td className="p-1 border-r-2 border-black text-center">{Number(item.rate).toFixed(0)}</td>
-                        <td className="p-1 text-right pr-3">{Number(item.total).toFixed(0)}/-</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    <tr>
+                        <td colSpan={3}></td>
+                        <td className="p-2 font-bold text-[10px] text-right">Paid:</td>
+                        <td className="p-2 text-right font-black pr-4 text-green-700">৳{Number(invoice.advance).toLocaleString()}/-</td>
+                    </tr>
+                    <tr className="bg-gray-100">
+                        <td colSpan={3}></td>
+                        <td className="p-2 font-black text-[11px] text-right uppercase">Due:</td>
+                        <td className="p-2 text-right font-black pr-4 text-red-600">৳{Number(invoice.due).toLocaleString()}/-</td>
+                    </tr>
+                 </tfoot>
+               </table>
+             </div>
 
-              {/* Footer Totals */}
-              <div className="mt-4 flex justify-between items-start font-black">
-                <div className="w-[60%] border-2 border-black p-3 bg-gray-50 rounded-sm">
-                  <span className="text-[9px] uppercase text-gray-500 block mb-1">In Words / কথায়:</span>
-                  <p className="italic text-sm">{invoice.in_word}</p>
+             {/* Footer Words and Signature */}
+             <div className="mt-8 flex justify-between items-end px-1 pb-10">
+                <div className="text-[11px] font-bold">
+                    <span className="italic mr-2">In Words:</span>
+                    <span className="border-b border-black pb-0.5">{invoice.in_word}</span>
                 </div>
-                <div className="w-44 space-y-0.5 border-l-2 border-black pl-4">
-                  <div className="flex justify-between py-1 border-b border-black/10"><span>Total:</span><span>৳{Number(invoice.grand_total).toFixed(0)}/-</span></div>
-                  <div className="flex justify-between py-1 border-b border-black/10 text-green-700"><span>Paid:</span><span>৳{Number(invoice.advance).toFixed(0)}/-</span></div>
-                  <div className="flex justify-between pt-1 text-lg text-red-600 bg-gray-100 px-1 font-black"><span>DUE:</span><span>৳{Number(invoice.due).toFixed(0)}/-</span></div>
+                <div className="text-center">
+                    <div className="w-32 border-t border-black pt-1 text-[10px] font-bold">
+                        <p>Authorized Signature</p>
+                    </div>
                 </div>
-              </div>
-
-              {/* Signatures */}
-              <div className="flex justify-between mt-16 px-6 text-[10px] font-black uppercase tracking-wider">
-                <div className="text-center w-28 border-t-2 border-black pt-1">Customer Sign</div>
-                <div className="text-center w-36 border-t-2 border-black pt-1">
-                  Authorized Sign
-                  <p className="text-[7px] text-gray-500 mt-0.5 normal-case">Master Computer & Press</p>
-                </div>
-              </div>
+             </div>
            </div>
         </div>
       </div>
