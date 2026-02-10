@@ -58,16 +58,13 @@
           background: white;
         }
         .memo-container {
-          width: 148mm !important; /* A5 Width */
-          height: 210mm !important; /* A5 Height */
+          width: 148.5mm !important; /* Exactly half of A4 landscape width (297/2) */
+          height: 210mm !important; /* Full height of A4 */
           margin: 0 !important;
-          padding: 10mm 15mm !important;
+          padding: 8mm 10mm !important;
           box-sizing: border-box;
-          float: left; /* Aligns to left half of A4 landscape */
-        }
-        /* Remove any outer borders in print */
-        .memo-container, .memo-inner {
-            border: none !important;
+          float: left;
+          background: white;
         }
         * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       }

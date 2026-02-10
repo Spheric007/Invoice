@@ -447,104 +447,132 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
         </div>
       </div>
 
-      {/* PRINT TEMPLATE - EXACTLY LIKE SCREENSHOT */}
+      {/* PRINT TEMPLATE - BOXED A5 DESIGN WITH DYNAMIC ROWS */}
       <div id="memo-print-template" className="hidden">
         <div ref={memoRef} className="memo-container bg-white text-black font-serif">
-           <div className="memo-inner flex flex-col h-full border-none">
-             {/* Header Section */}
-             <div className="text-center mb-1">
-                <p className="text-[11px] font-bold uppercase tracking-[1px] mb-0.5">Cash Memo</p>
-                <h1 className="text-[20px] font-bold leading-none mb-1">MASTER COMPUTER & PRINTING PRESS</h1>
-                
-                <div className="flex justify-between items-center border-t border-b border-black py-0.5 px-1 text-[11px] font-bold">
-                    <span>Proprietor: S.M. Shahjahan</span>
-                    <span className="font-sans">01720-365191</span>
-                </div>
-                
-                <p className="text-[9px] font-medium italic mt-1 leading-tight">All types of composing, graphic design, and printing work are done here.</p>
-                <p className="text-[9px] font-bold leading-tight">Primary Teachers Association Market, Sakhipur, Tangail.</p>
-                <div className="border-b border-black mt-1 mb-3"></div>
-             </div>
-
-             {/* Client Info Section */}
-             <div className="grid grid-cols-2 gap-x-10 mb-3 text-[12px] px-1">
-                <div className="space-y-1">
-                  <p className="flex items-center"><span className="font-bold w-16">Serial No:</span> <span className="border-b border-dotted border-black flex-1 font-bold pl-1">{formData.invoice_no}</span></p>
-                  <p className="flex items-center font-bengali"><span className="font-bold w-16">Name:</span> <span className="border-b border-dotted border-black flex-1 font-bold pl-1">{formData.client_name}</span></p>
-                  <p className="flex items-center font-bengali"><span className="font-bold w-16">Address:</span> <span className="border-b border-dotted border-black flex-1 pl-1 text-[11px]">{formData.client_address || 'Sakhipur, Tangail'}</span></p>
-                </div>
-                <div className="space-y-1">
-                  <p className="flex items-center justify-end"><span className="font-bold mr-2">Date:</span> <span className="border-b border-dotted border-black min-w-[100px] text-center font-bold pl-1">{new Date(formData.memo_date || '').toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'})}</span></p>
-                  <p className="flex items-center justify-end"><span className="font-bold mr-2">Mobile:</span> <span className="border-b border-dotted border-black min-w-[100px] text-center font-bold pl-1 font-sans">{formData.client_mobile || '01xxx-xxxxxx'}</span></p>
-                </div>
-             </div>
-
-             {/* Table Section */}
-             <div className="flex-grow">
-               <table className="w-full border-collapse border border-black text-[11px]">
-                 <thead>
-                   <tr className="border-b border-black">
-                     <th className="p-1 border-r border-black w-8 text-center uppercase">SL NO</th>
-                     <th className="p-1 border-r border-black text-center uppercase">DETAILS</th>
-                     <th className="p-1 border-r border-black w-16 text-center uppercase">QTY.</th>
-                     <th className="p-1 border-r border-black w-20 text-center uppercase">RATE (৳)</th>
-                     <th className="p-1 w-24 text-center uppercase">TOTAL (৳)</th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   {formData.items?.map((item, i) => (
-                     <tr key={i} className="border-b border-black h-8 align-top">
-                       <td className="p-1 border-r border-black text-center">{i+1}</td>
-                       <td className="p-1 border-r border-black font-bengali pl-2 font-bold">{item.details} {item.len && item.wid ? `(${item.len}x${item.wid})` : ''}</td>
-                       <td className="p-1 border-r border-black text-center">{item.qty}</td>
-                       <td className="p-1 border-r border-black text-center">{Number(item.rate).toFixed(0)}</td>
-                       <td className="p-1 text-right pr-2 font-bold">{Number(item.total).toFixed(0)}/-</td>
-                     </tr>
-                   ))}
-                   {/* Empty rows to fill space */}
-                   {[...Array(Math.max(0, 8 - (formData.items?.length || 0)))].map((_, i) => (
-                     <tr key={`empty-${i}`} className="border-b border-black h-8">
-                       <td className="p-1 border-r border-black"></td>
-                       <td className="p-1 border-r border-black"></td>
-                       <td className="p-1 border-r border-black"></td>
-                       <td className="p-1 border-r border-black"></td>
-                       <td className="p-1"></td>
-                     </tr>
-                   ))}
-                 </tbody>
-                 <tfoot>
-                    <tr className="border-t border-black">
-                        <td colSpan={3} className="border-none"></td>
-                        <td className="p-1 border-l border-b border-black font-bold text-[10px] text-right">Total (৳)</td>
-                        <td className="p-1 border-l border-b border-black text-right font-black pr-2">৳{(Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0)}/-</td>
-                    </tr>
-                    <tr>
-                        <td colSpan={3} className="border-none"></td>
-                        <td className="p-1 border-l border-b border-black font-bold text-[10px] text-right">Advance (৳)</td>
-                        <td className="p-1 border-l border-b border-black text-right font-black pr-2">৳{Number(formData.advance).toFixed(0)}/-</td>
-                    </tr>
-                    <tr>
-                        <td colSpan={3} className="border-none"></td>
-                        <td className="p-1 border-l border-black font-bold text-[10px] text-right bg-gray-50">Due (৳)</td>
-                        <td className="p-1 border-l border-black text-right font-black pr-2 bg-gray-50">৳{((Number(formData.due) || 0) + (includePreviousDue ? prevDueAmount : 0)).toFixed(0)}/-</td>
-                    </tr>
-                 </tfoot>
-               </table>
-             </div>
-
-             {/* Footer Words and Signature */}
-             <div className="mt-4 flex justify-between items-end px-1">
-                <div className="text-[10px] font-bold">
-                    <span className="italic mr-1">In Word:</span>
-                    <span className="border-b border-black pb-0.5">{formData.in_word}</span>
-                </div>
-                <div className="text-center w-28">
-                    <div className="border-t border-black pt-0.5 text-[9px] font-bold">
-                        <p>Authority</p>
-                        <p className="uppercase mt-0.5 opacity-60 text-[7px]">Signature</p>
+           <div className="w-full h-full p-0.5 border border-black">
+              <div className="w-full h-full p-4 border-2 border-black flex flex-col relative">
+                 
+                 {/* Top Label */}
+                 <div className="flex justify-center mb-5">
+                    <div className="border-2 border-black px-6 py-1 text-[13px] font-black uppercase tracking-[2px] bg-white">
+                       Cash Memo / ক্যাশ মেমো
                     </div>
-                </div>
-             </div>
+                 </div>
+
+                 {/* Header */}
+                 <div className="text-center mb-4">
+                    <h1 className="text-[24px] font-black uppercase tracking-tight leading-none mb-3">
+                        MASTER COMPUTER & PRINTING PRESS
+                    </h1>
+                    <div className="flex justify-between items-center px-4 py-1 border-t border-b border-black text-[12px] font-bold">
+                       <span>Proprietor: S.M. Shahjahan</span>
+                       <div className="bg-black text-white px-3 py-0.5 rounded-sm font-sans">01720-365191</div>
+                    </div>
+                    <div className="flex justify-center mt-2">
+                       <div className="border border-black px-4 py-0.5 text-[9px] font-bold">
+                          Primary association Market, Sakhipur, Tangail
+                       </div>
+                    </div>
+                    <div className="border-b border-black mt-3"></div>
+                 </div>
+
+                 {/* Client Info */}
+                 <div className="grid grid-cols-12 gap-x-6 mb-5 text-[13px] font-bold">
+                    <div className="col-span-7 space-y-2">
+                       <div className="flex items-end">
+                          <span className="w-16">Serial:</span>
+                          <span className="border-b border-black flex-1 pl-2 pb-0.5 font-black">#{formData.invoice_no}</span>
+                       </div>
+                       <div className="flex items-end font-bengali">
+                          <span className="w-16">Name:</span>
+                          <span className="border-b border-black flex-1 pl-2 pb-0.5 font-black">{formData.client_name}</span>
+                       </div>
+                       <div className="flex items-end font-bengali">
+                          <span className="w-16">Address:</span>
+                          <span className="border-b border-black flex-1 pl-2 pb-0.5">{formData.client_address || '...'}</span>
+                       </div>
+                    </div>
+                    <div className="col-span-5 space-y-2">
+                       <div className="flex items-end justify-end">
+                          <span className="mr-2">Date:</span>
+                          <span className="border-b border-black flex-1 text-center pb-0.5">{new Date(formData.memo_date || '').toLocaleDateString('en-GB')}</span>
+                       </div>
+                       <div className="flex items-end justify-end font-sans">
+                          <span className="mr-2">Mobile:</span>
+                          <span className="border-b border-black flex-1 text-center pb-0.5">{formData.client_mobile || '...'}</span>
+                       </div>
+                    </div>
+                 </div>
+
+                 {/* Table - Only dynamic rows */}
+                 <div className="flex-grow">
+                    <table className="w-full border-collapse border-2 border-black text-[13px]">
+                       <thead>
+                          <tr className="border-b-2 border-black h-9 bg-gray-50">
+                             <th className="border-r border-black w-10 text-center">SL</th>
+                             <th className="border-r border-black text-center pl-2">Work Description</th>
+                             <th className="border-r border-black w-24 text-center">Qty / Size</th>
+                             <th className="border-r border-black w-20 text-center">Rate</th>
+                             <th className="w-24 text-center">Total (৳)</th>
+                          </tr>
+                       </thead>
+                       <tbody className="font-black">
+                          {formData.items?.map((item, i) => (
+                             <tr key={item.id} className="border-b border-black h-9 align-middle">
+                                <td className="border-r border-black text-center">{i+1}</td>
+                                <td className="border-r border-black pl-3 font-bengali">{item.details}</td>
+                                <td className="border-r border-black text-center font-sans text-[11px]">
+                                   {item.len && item.wid ? `${item.len}x${item.wid}` : item.qty}
+                                </td>
+                                <td className="border-r border-black text-center">{item.rate}</td>
+                                <td className="text-right pr-3">{item.total}/-</td>
+                             </tr>
+                          ))}
+                       </tbody>
+                    </table>
+                 </div>
+
+                 {/* Footer Summary */}
+                 <div className="mt-5 grid grid-cols-12 gap-6 items-start">
+                    <div className="col-span-7">
+                       <div className="border border-black p-3 h-20 flex flex-col justify-between bg-white">
+                          <div className="text-[9px] uppercase font-black text-gray-500 mb-1">IN WORDS / কথায়:</div>
+                          <div className="italic text-[14px] font-black font-bengali leading-snug">
+                             {convertToWords((Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0))}
+                          </div>
+                       </div>
+                    </div>
+                    <div className="col-span-5">
+                       <div className="border-l-2 border-black pl-3 space-y-0.5">
+                          <div className="flex justify-between items-center py-1 border-b border-gray-200 font-bold text-[13px]">
+                             <span>Total:</span>
+                             <span className="font-black">৳{(Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0)}/-</span>
+                          </div>
+                          <div className="flex justify-between items-center py-1 border-b border-gray-200 font-bold text-[13px] text-green-700">
+                             <span>Paid:</span>
+                             <span className="font-black">৳{Number(formData.advance).toFixed(0)}/-</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 px-2 bg-gray-100 font-black text-[15px] text-red-600 mt-1">
+                             <span>DUE:</span>
+                             <span>৳{((Number(formData.due) || 0) + (includePreviousDue ? prevDueAmount : 0)).toFixed(0)}/-</span>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+
+                 {/* Bottom Signature Section */}
+                 <div className="mt-auto flex justify-between items-end px-6 pb-2 text-[11px] font-bold uppercase tracking-wider">
+                    <div className="text-center w-36 border-t border-black pt-1">
+                      Customer Sign
+                    </div>
+                    <div className="text-center w-48 relative">
+                       {/* Company Signature Label above line */}
+                       <div className="text-[14px] font-black italic tracking-tighter mb-0.5 text-primary">Master Computer</div>
+                       <div className="border-t border-black pt-1">Authorized Sign</div>
+                    </div>
+                 </div>
+              </div>
            </div>
         </div>
       </div>
