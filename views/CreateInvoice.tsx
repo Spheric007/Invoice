@@ -392,31 +392,83 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
           <button onClick={() => setFormData(p => ({ ...p, items: [...p.items!, { id: Date.now(), details: '', qty: 1, rate: 0, total: 0, len: '', wid: '' }] }))} className="mt-4 bg-black text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest"><i className="fas fa-plus mr-1"></i> Add row</button>
         </div>
 
-        <div className="bg-white p-8 rounded-2xl border border-border shadow-md">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-             <div className="space-y-8">
-                <div><label className="text-xs font-black text-gray-400 uppercase mb-2 block tracking-widest">Total Bill (৳)</label><input type="text" className="w-full px-6 py-8 rounded-2xl border bg-gray-100 font-black text-6xl tracking-tighter text-black" value={formData.grand_total?.toFixed(0)} readOnly /></div>
-                <div><label className="text-xs font-black text-gray-400 uppercase mb-2 block tracking-widest">In Words</label><div className="w-full px-6 py-4 rounded-xl border bg-gray-50 italic text-lg font-black font-bengali text-black min-h-[60px] flex items-center">{formData.in_word}</div></div>
-             </div>
-             <div className="space-y-8">
-                <div><label className="text-xs font-black text-gray-400 uppercase mb-2 block tracking-widest">Advance Paid (৳)</label><input type="number" className="w-full px-6 py-8 rounded-2xl border-2 border-black font-black text-6xl text-black outline-none shadow-inner" value={formData.advance || ''} onChange={(e) => handleInputChange('advance', e.target.value)} placeholder="0" /></div>
-                <div className="p-8 bg-black rounded-3xl border-4 border-black text-white shadow-2xl">
-                   <label className="text-xs font-black text-gray-400 uppercase mb-2 block tracking-widest">Balance Due (৳)</label>
-                   <div className="text-7xl font-black tracking-tighter">৳{formData.due?.toFixed(0)}</div>
-                </div>
-             </div>
+        <div className="bg-white p-6 rounded-2xl border border-border shadow-sm space-y-4">
+          <h3 className="font-bold text-black text-xl border-b pb-2 flex items-center uppercase tracking-tighter">
+            <i className="fas fa-money-check-alt mr-2"></i> Payment Details
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-bold text-gray-600 mb-1 block">Subtotal (৳)</label>
+              <input 
+                type="text" 
+                className="w-full px-4 py-3 rounded-lg border bg-gray-100 font-bold outline-none" 
+                value={formData.grand_total?.toFixed(2)} 
+                readOnly 
+              />
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-600 mb-1 block">Advance Payment (৳)</label>
+              <input 
+                type="number" 
+                className="w-full px-4 py-3 rounded-lg border outline-none font-bold focus:ring-2 focus:ring-black/5" 
+                value={formData.advance || ''} 
+                onChange={(e) => handleInputChange('advance', e.target.value)} 
+                placeholder="0.00" 
+              />
+            </div>
           </div>
+
+          <div>
+            <label className="text-sm font-bold text-gray-600 mb-1 block">Due Amount (৳)</label>
+            <input 
+              type="text" 
+              className="w-full px-4 py-3 rounded-lg border bg-gray-100 font-bold outline-none" 
+              value={formData.due?.toFixed(2)} 
+              readOnly 
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-bold text-gray-600 mb-1 block">Amount in Words</label>
+            <input 
+              type="text" 
+              className="w-full px-4 py-3 rounded-lg border bg-gray-100 italic outline-none font-medium" 
+              value={formData.in_word} 
+              readOnly 
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-bold text-gray-600 mb-1 block">Payment Status</label>
+            <div className={`w-full py-2.5 px-4 rounded-lg font-black uppercase text-xs tracking-widest border text-center ${formData.due! <= 0 && formData.grand_total! > 0 ? 'bg-green-50 text-green-600 border-green-200' : 'bg-red-50 text-red-600 border-red-100'}`}>
+              {formData.due! <= 0 && formData.grand_total! > 0 ? 'PAID' : 'UNPAID'}
+            </div>
+          </div>
+
           {prevDueAmount > 0 && (
-            <div className="mt-10 pt-6 border-t border-dashed flex items-center gap-4">
-              <input type="checkbox" id="includePrevDue" className="w-6 h-6 accent-black cursor-pointer" checked={includePreviousDue} onChange={(e) => setIncludePreviousDue(e.target.checked)} />
-              <label htmlFor="includePrevDue" className="text-danger font-black font-bengali text-xl cursor-pointer">প্রিন্টে পূর্বের বকেয়া যোগ করুন</label>
+            <div className="mt-4 pt-4 border-t border-dashed flex items-center gap-3">
+              <input 
+                type="checkbox" 
+                id="includePrevDue" 
+                className="w-5 h-5 accent-black cursor-pointer" 
+                checked={includePreviousDue} 
+                onChange={(e) => setIncludePreviousDue(e.target.checked)} 
+              />
+              <label htmlFor="includePrevDue" className="text-danger font-bold font-bengali text-sm cursor-pointer">
+                প্রিন্টে পূর্বের বকেয়া যোগ করুন (Include Previous Due in Print)
+              </label>
             </div>
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 pb-10">
-           <button onClick={handlePrint} className="w-full py-6 bg-gray-900 text-white rounded-3xl font-black flex items-center justify-center gap-4 shadow-2xl hover:bg-black transition-all uppercase tracking-widest text-lg"><i className="fas fa-print text-2xl"></i> Print Memo</button>
-           <button onClick={saveInvoice} disabled={isSaving} className="w-full py-6 border-4 border-black text-black rounded-3xl font-black flex items-center justify-center gap-4 bg-white hover:bg-black hover:text-white transition-all uppercase tracking-widest text-lg"><i className="fas fa-save text-2xl"></i> {isSaving ? 'Processing...' : 'Save & Close'}</button>
+        <div className="flex flex-col md:flex-row justify-end items-center gap-4 pt-4 pb-10">
+           <button onClick={handlePrint} className="w-full md:w-auto px-8 py-3.5 bg-gray-200 text-black rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-300 transition-all uppercase tracking-widest text-xs border border-gray-400">
+             <i className="fas fa-print"></i> Print Invoice
+           </button>
+           <button onClick={saveInvoice} disabled={isSaving} className="w-full md:w-auto px-8 py-3.5 bg-[#4F46E5] text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all uppercase tracking-widest text-xs shadow-lg shadow-indigo-200">
+             <i className="fas fa-plus"></i> {isSaving ? 'Saving...' : (editInvoiceNo ? 'Update Invoice' : 'Create Invoice')}
+           </button>
         </div>
       </div>
 
