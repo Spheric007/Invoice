@@ -24,19 +24,13 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
     
     if (printRoot && memoContent) {
       printRoot.innerHTML = '';
-      // Create a wrapper for right alignment in print
-      const wrapper = document.createElement('div');
-      wrapper.style.width = '100%';
-      wrapper.style.display = 'flex';
-      wrapper.style.justifyContent = 'flex-end';
-
+      
       const clone = memoContent.cloneNode(true) as HTMLElement;
-      clone.style.marginLeft = 'auto';
-      clone.style.marginRight = '0';
-      clone.style.boxShadow = 'none'; // Avoid shadow in print
+      // Rely on print-root's flex-end justify to push to right
+      clone.style.margin = '0'; 
+      clone.style.boxShadow = 'none';
 
-      wrapper.appendChild(clone);
-      printRoot.appendChild(wrapper);
+      printRoot.appendChild(clone);
 
       setTimeout(() => {
         window.print();

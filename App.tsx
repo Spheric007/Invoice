@@ -1,15 +1,18 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Invoice, Customer, NavigationParams, InvoiceItem } from './types';
 import { db } from './services/db';
+import { supabase } from './supabaseClient';
 import Dashboard from './views/Dashboard';
 import InvoiceList from './views/InvoiceList';
 import CreateInvoice from './views/CreateInvoice';
 import InvoiceDetails from './views/InvoiceDetails';
 import CustomerList from './views/CustomerList';
 import CustomerDetails from './views/CustomerDetails';
+import Login from './views/Login';
 
 const App: React.FC = () => {
+  const [session, setSession] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [currentView, setCurrentView] = useState<View>(View.Dashboard);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedInvoiceNo, setSelectedInvoiceNo] = useState<string | null>(null);
@@ -20,7 +23,22 @@ const App: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Auth Listener
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setAuthLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const fetchData = useCallback(async () => {
+    if (!session) return;
     setLoading(true);
     try {
       const [invs, custs] = await Promise.all([
@@ -34,11 +52,13 @@ const App: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [session]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (session) {
+      fetchData();
+    }
+  }, [fetchData, session]);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -56,6 +76,10 @@ const App: React.FC = () => {
     if (view === View.Dashboard || view === View.Invoices || view === View.Customers) {
       fetchData();
     }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
   };
 
   const renderView = () => {
@@ -79,6 +103,18 @@ const App: React.FC = () => {
     }
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-black"></div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <Login />;
+  }
+
   return (
     <div className="flex min-h-screen bg-secondary relative overflow-hidden font-poppins">
       <div className="md:hidden fixed top-0 left-0 right-0 bg-white shadow-md z-40 flex items-center justify-between px-6 py-4 no-print">
@@ -97,7 +133,7 @@ const App: React.FC = () => {
           <h2 className="text-2xl font-black text-black tracking-tighter uppercase">Master Computer</h2>
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 opacity-70">Printing Press Mgmt</p>
         </div>
-        <nav className="flex-1 p-5">
+        <nav className="flex-1 p-5 overflow-y-auto">
           <ul className="space-y-3">
             <li>
               <button onClick={() => navigateTo(View.Dashboard)} className={`w-full flex items-center px-5 py-4 rounded-2xl text-sm font-bold transition-all ${currentView === View.Dashboard ? 'bg-black text-white shadow-lg' : 'text-gray-500 hover:bg-secondary'}`}>
@@ -116,7 +152,12 @@ const App: React.FC = () => {
             </li>
           </ul>
         </nav>
-        <div className="p-8 pt-4 border-t border-border text-[10px] text-gray-400 font-bold uppercase tracking-widest opacity-40">v9.0 Stable Build</div>
+        <div className="p-5 border-t border-border">
+          <button onClick={handleLogout} className="w-full flex items-center px-5 py-4 rounded-2xl text-sm font-bold text-danger hover:bg-danger/10 transition-all">
+            <i className="fas fa-sign-out-alt mr-4 text-xl"></i> Logout
+          </button>
+          <div className="mt-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest opacity-40 px-5">v9.0 Stable Build</div>
+        </div>
       </div>
 
       <div className="flex-1 md:p-10 pt-24 md:pt-10 overflow-y-auto h-screen relative bg-[#f0f2f5]">
