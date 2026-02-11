@@ -6,7 +6,7 @@
     <title>Invoice Pro - Master Computer v9.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Hind+Siliguri:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -25,14 +25,13 @@
                     },
                     fontFamily: {
                         poppins: ['Poppins', 'sans-serif'],
-                        bengali: ['Hind Siliguri', 'sans-serif']
+                        bengali: ['Hind Siliguri', 'serif']
                     }
                 }
             }
         }
     </script>
     <style>
-        * { font-family: 'Poppins', 'Hind Siliguri', sans-serif; }
         .no-print { @apply print:hidden; }
         @media print {
             @page {
@@ -54,7 +53,7 @@
             #root { display: none !important; }
         }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .font-bengali { font-family: 'Hind Siliguri', sans-serif; }
+        .font-bengali { font-family: 'Hind Siliguri', serif; }
     </style>
 <script type="importmap">
 {
@@ -69,8 +68,9 @@
 }
 </script>
 </head>
-<body class="bg-[#f0f2f5]">
+<body class="bg-[#f0f2f5] font-poppins">
     <div id="root"></div>
+    <!-- This is where the actual memo will be injected during printing -->
     <div id="print-root" class="hidden fixed inset-0 z-[9999] bg-white"></div>
     <script type="module" src="/index.tsx"></script>
 </body>
