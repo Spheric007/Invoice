@@ -213,26 +213,6 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
     calculateTotals(newItems, Number(formData.advance) || 0);
   };
 
-  const addHistoricalItem = (item: { details: string; rate: number }) => {
-    const newItem: InvoiceItem = {
-      id: Date.now() + Math.random(),
-      details: item.details,
-      qty: 1,
-      rate: item.rate,
-      total: item.rate,
-      len: '',
-      wid: ''
-    };
-    
-    const currentItems = [...(formData.items || [])];
-    if (currentItems.length === 1 && !currentItems[0].details && currentItems[0].total === 0) {
-      currentItems[0] = newItem;
-    } else {
-      currentItems.push(newItem);
-    }
-    calculateTotals(currentItems, Number(formData.advance) || 0);
-  };
-
   const saveInvoice = async () => {
     if (!formData.client_name) return alert("Fill customer name first");
     if (!formData.invoice_no) return alert("Invoice number is missing");
@@ -277,7 +257,6 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       printRoot.innerHTML = '';
       
       const clone = memoContent.cloneNode(true) as HTMLElement;
-      // Rely on print-root's flex-end justify to push to right
       clone.style.margin = '0'; 
       clone.style.boxShadow = 'none';
       
@@ -288,6 +267,9 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       }, 500);
     }
   };
+
+  const labelStyle = "text-sm font-semibold text-gray-600 mb-2 block";
+  const inputStyle = "w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-black/5 bg-white transition-all";
 
   return (
     <div className="animate-in slide-in-from-bottom duration-500 pb-44">
@@ -300,21 +282,31 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
 
       <div className="max-w-5xl mx-auto space-y-6 no-print px-4">
         
-        {/* Customer Info Section */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
-          <h3 className="font-bold mb-6 text-black text-xl border-b pb-2 flex items-center uppercase tracking-tighter">
-            <i className="fas fa-user-circle mr-2"></i> Customer Info
-          </h3>
+        {/* Customer Information Section - Styled to match image */}
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-border">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="font-bold text-black text-xl">Customer Information</h3>
+            <div className="flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                id="walk_in_check"
+                className="w-4 h-4 rounded border-gray-300 accent-black cursor-pointer"
+                checked={formData.is_walk_in || false}
+                onChange={(e) => setFormData(prev => ({ ...prev, is_walk_in: e.target.checked }))}
+              />
+              <label htmlFor="walk_in_check" className="text-sm text-gray-500 cursor-pointer">Walk-in (Don't Save)</label>
+            </div>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
             <div className="relative">
-              <label className="text-[10px] font-black text-gray-500 uppercase mb-1.5 block tracking-widest">Name*</label>
+              <label className={labelStyle}>Customer Name*</label>
               <input 
                 type="text" 
-                className="w-full px-4 py-3 rounded-xl border font-bengali font-bold outline-none focus:ring-2 focus:ring-black/5 bg-white"
+                className={inputStyle}
                 value={formData.client_name || ''}
                 onChange={(e) => handleInputChange('client_name', e.target.value)}
-                placeholder="কাস্টমারের নাম..."
+                placeholder="Enter customer name"
               />
               {showSuggestions && suggestions.length > 0 && (
                 <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white shadow-2xl border border-border rounded-xl max-h-60 overflow-y-auto">
@@ -335,12 +327,47 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
               )}
             </div>
 
-            <div><label className="text-[10px] font-black text-gray-500 uppercase mb-1.5 block tracking-widest">Address</label><input type="text" className="w-full px-4 py-3 rounded-xl border font-bengali outline-none focus:ring-2 focus:ring-black/5 bg-white" value={formData.client_address || ''} onChange={(e) => handleInputChange('client_address', e.target.value)} placeholder="ঠিকানা" /></div>
-            <div><label className="text-[10px] font-black text-gray-500 uppercase mb-1.5 block tracking-widest">Mobile</label><input type="text" className="w-full px-4 py-3 rounded-xl border outline-none focus:ring-2 focus:ring-black/5 bg-white" value={formData.client_mobile || ''} onChange={(e) => handleInputChange('client_mobile', e.target.value)} placeholder="017xxxxxxxx" /></div>
+            <div>
+              <label className={labelStyle}>Customer Address</label>
+              <input 
+                type="text" 
+                className={inputStyle} 
+                value={formData.client_address || ''} 
+                onChange={(e) => handleInputChange('client_address', e.target.value)} 
+                placeholder="Enter customer address" 
+              />
+            </div>
+
+            <div>
+              <label className={labelStyle}>Mobile (Contact Number)</label>
+              <input 
+                type="text" 
+                className={inputStyle} 
+                value={formData.client_mobile || ''} 
+                onChange={(e) => handleInputChange('client_mobile', e.target.value)} 
+                placeholder="e.g., 017xxxxxxxx" 
+              />
+            </div>
             
-            <div className="grid grid-cols-2 gap-4 md:col-span-2">
-              <div><label className="text-[10px] font-black text-gray-500 uppercase mb-1.5 block tracking-widest">Serial No</label><input type="text" className="w-full px-4 py-3 rounded-xl border bg-gray-100 font-black text-center" value={formData.invoice_no} readOnly /></div>
-              <div><label className="text-[10px] font-black text-gray-500 uppercase mb-1.5 block tracking-widest">Date</label><input type="date" className="w-full px-4 py-3 rounded-xl border font-bold outline-none focus:ring-2 focus:ring-black/5 bg-white" value={formData.memo_date} onChange={(e) => handleInputChange('memo_date', e.target.value)} /></div>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className={labelStyle}>Serial No:</label>
+                <input 
+                  type="text" 
+                  className={`${inputStyle} bg-gray-100 text-gray-700 font-bold`} 
+                  value={formData.invoice_no} 
+                  readOnly 
+                />
+              </div>
+              <div>
+                <label className={labelStyle}>Date</label>
+                <input 
+                  type="date" 
+                  className={inputStyle} 
+                  value={formData.memo_date} 
+                  onChange={(e) => handleInputChange('memo_date', e.target.value)} 
+                />
+              </div>
             </div>
           </div>
 
@@ -349,7 +376,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
               <h4 className="text-black font-black mb-4 text-sm flex items-center font-bengali uppercase tracking-widest"><i className="fas fa-history mr-2 text-gray-400"></i> কাজের বিবরণী (গত ৫টি আইটেম)</h4>
               <div className="flex flex-wrap gap-2">
                 {customerHistory.map((item, i) => (
-                  <button key={i} onClick={() => addHistoricalItem(item)} className="px-4 py-3 bg-gray-50 hover:bg-black hover:text-white transition-all rounded-xl border border-gray-100 flex items-center gap-3 group">
+                  <button key={i} onClick={() => setFormData(prev => ({ ...prev, items: [...(prev.items || []), { id: Date.now() + Math.random(), details: item.details, qty: 1, rate: item.rate, total: item.rate, len: '', wid: '' }] }))} className="px-4 py-3 bg-gray-50 hover:bg-black hover:text-white transition-all rounded-xl border border-gray-100 flex items-center gap-3 group">
                     <div className="flex flex-col items-start">
                       <span className="font-bengali font-bold text-sm">{item.details}</span>
                       <span className="text-[10px] font-black text-gray-400 group-hover:text-gray-300">৳{item.rate}</span>
@@ -400,7 +427,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
           <button onClick={() => setFormData(p => ({ ...p, items: [...p.items!, { id: Date.now(), details: '', qty: 1, rate: 0, total: 0, len: '', wid: '' }] }))} className="mt-4 bg-black text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest"><i className="fas fa-plus mr-1"></i> Add row</button>
         </div>
 
-        {/* Payment Details Redesigned - Cleaner Style */}
+        {/* Payment Details Redesigned */}
         <div className="bg-white p-6 rounded-2xl border border-border shadow-sm space-y-4">
           <h3 className="font-bold text-black text-xl border-b pb-2 flex items-center uppercase tracking-tighter">
             <i className="fas fa-money-check-alt mr-2"></i> Payment Details
@@ -482,7 +509,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
         </div>
       </div>
 
-      {/* Print Template - Hidden from view, used for cloning */}
+      {/* Print Template - Aligned to Right side of page */}
       <div id="memo-print-template" className="hidden">
         <div ref={memoRef} className="memo-container bg-white text-black font-serif" style={{ width: '148mm', height: '210mm', padding: '5mm', position: 'relative', margin: '0' }}>
           <div className="w-full h-full border-2 border-black p-3 flex flex-col box-border">

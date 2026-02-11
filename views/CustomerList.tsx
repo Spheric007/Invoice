@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { View, Customer, Invoice } from '../types';
 import { db } from '../services/db';
@@ -34,10 +33,11 @@ const CustomerList: React.FC<CustomerListProps> = ({ customers, invoices, naviga
     (c.mobile && c.mobile.includes(searchTerm))
   );
 
-  const handleDelete = async (name: string) => {
-    if (window.confirm(`Are you sure you want to delete customer "${name}" and all their records?`)) {
+  const handleDelete = async (customer: Customer) => {
+    const identifier = customer.id || customer.name;
+    if (window.confirm(`Are you sure you want to delete customer "${customer.name}" and all their records?`)) {
       try {
-        await db.deleteCustomer(name);
+        await db.deleteCustomer(identifier);
         alert('Customer deleted successfully');
         refresh();
       } catch (err: any) {
@@ -114,7 +114,7 @@ const CustomerList: React.FC<CustomerListProps> = ({ customers, invoices, naviga
                     <td className="px-6 py-4 text-right font-black text-danger">৳{stats.totalDue.toFixed(2)}</td>
                     <td className="px-6 py-4 text-center space-x-3">
                       <button onClick={() => navigateTo(View.CustomerDetails, { customerName: cust.name })} className="text-primary hover:scale-110 transition-transform"><i className="fas fa-eye"></i></button>
-                      <button onClick={() => handleDelete(cust.name)} className="text-danger hover:scale-110 transition-transform"><i className="fas fa-trash-alt"></i></button>
+                      <button onClick={() => handleDelete(cust)} className="text-danger hover:scale-110 transition-transform"><i className="fas fa-trash-alt"></i></button>
                     </td>
                   </tr>
                 );

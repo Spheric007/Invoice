@@ -1,4 +1,3 @@
-
 import { supabase } from '../supabaseClient';
 import { Invoice, Customer, Transaction, PendingItem, ActivityLog } from '../types';
 
@@ -113,12 +112,22 @@ export const db = {
     return data as Customer;
   },
 
-  async deleteCustomer(name: string) {
-    const { error } = await supabase
-      .from('customers')
-      .delete()
-      .eq('name', name);
-    if (error) throw error;
+  async deleteCustomer(identifier: string) {
+    // UUID pattern to check if identifier is an ID or Name
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+    
+    const query = supabase.from('customers').delete();
+    if (isUuid) {
+      query.eq('id', identifier);
+    } else {
+      query.eq('name', identifier);
+    }
+
+    const { error } = await query;
+    if (error) {
+      console.error("Supabase Delete Customer Error:", error);
+      throw error;
+    }
     return true;
   },
 
