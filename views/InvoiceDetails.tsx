@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Invoice } from '../types';
 import { db } from '../services/db';
@@ -25,8 +24,20 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
     
     if (printRoot && memoContent) {
       printRoot.innerHTML = '';
+      // Create a wrapper for right alignment in print
+      const wrapper = document.createElement('div');
+      wrapper.style.width = '100%';
+      wrapper.style.display = 'flex';
+      wrapper.style.justifyContent = 'flex-end';
+
       const clone = memoContent.cloneNode(true) as HTMLElement;
-      printRoot.appendChild(clone);
+      clone.style.marginLeft = 'auto';
+      clone.style.marginRight = '0';
+      clone.style.boxShadow = 'none'; // Avoid shadow in print
+
+      wrapper.appendChild(clone);
+      printRoot.appendChild(wrapper);
+
       setTimeout(() => {
         window.print();
       }, 500);
@@ -74,7 +85,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
       </div>
 
       <div className="flex justify-center bg-gray-200/50 p-6 rounded-2xl overflow-x-auto">
-        <div ref={memoRef} className="memo-container bg-white shadow-2xl" style={{ width: '148mm', height: '210mm', padding: '5mm', position: 'relative', overflow: 'hidden' }}>
+        <div ref={memoRef} className="memo-container bg-white shadow-2xl" style={{ width: '148mm', height: '210mm', padding: '5mm', position: 'relative', overflow: 'hidden', marginLeft: 'auto', marginRight: 'auto' }}>
            <div className="w-full h-full border-2 border-black p-3 flex flex-col box-border font-serif text-black">
               
               <div className="flex justify-center -mt-1 mb-3">
