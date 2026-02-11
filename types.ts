@@ -73,3 +73,9 @@ export enum View {
   CustomerDetails = 'customer-details',
   Backup = 'backup'
 }
+
+export interface NavigationParams {
+  invoiceNo?: string;
+  customerName?: string;
+  initialItems?: Partial<InvoiceItem>[];
+}

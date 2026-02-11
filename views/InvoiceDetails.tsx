@@ -56,20 +56,20 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
 
   if (!invoice) return (
     <div className="flex items-center justify-center h-full">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
     </div>
   );
 
   return (
     <div className="animate-in fade-in duration-500 pb-20 no-print">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 px-4">
-        <button onClick={() => navigateTo(View.Invoices)} className="text-lightText hover:text-primary transition-colors flex items-center font-bold">
+        <button onClick={() => navigateTo(View.Invoices)} className="text-lightText hover:text-black transition-colors flex items-center font-bold">
           <i className="fas fa-arrow-left mr-2"></i> Back to List
         </button>
         <div className="flex flex-wrap gap-2">
-          <button onClick={handlePrint} className="bg-primary text-white px-6 py-2.5 rounded-xl font-black flex items-center shadow-lg hover:scale-105 transition-transform"><i className="fas fa-print mr-2"></i> Print</button>
-          <button onClick={handleDownloadPNG} className="bg-blue-500 text-white px-5 py-2.5 rounded-xl font-bold flex items-center shadow-md hover:bg-blue-600 transition-colors"><i className="fas fa-image mr-2"></i> Download Image</button>
-          <button onClick={() => navigateTo(View.EditInvoice, { invoiceNo: invoice.invoice_no })} className="bg-warning text-white px-5 py-2.5 rounded-xl font-bold flex items-center shadow-md hover:bg-orange-600 transition-colors"><i className="fas fa-edit mr-2"></i> Edit</button>
+          <button onClick={handlePrint} className="bg-black text-white px-6 py-2.5 rounded-xl font-black flex items-center shadow-lg hover:scale-105 transition-transform"><i className="fas fa-print mr-2"></i> Print</button>
+          <button onClick={handleDownloadPNG} className="bg-gray-200 text-black px-5 py-2.5 rounded-xl font-bold flex items-center shadow-md hover:bg-gray-300 transition-colors"><i className="fas fa-image mr-2"></i> Download Image</button>
+          <button onClick={() => navigateTo(View.EditInvoice, { invoiceNo: invoice.invoice_no })} className="bg-white border-2 border-black text-black px-5 py-2.5 rounded-xl font-bold flex items-center shadow-md hover:bg-black hover:text-white transition-all"><i className="fas fa-edit mr-2"></i> Edit</button>
         </div>
       </div>
 
@@ -77,14 +77,12 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
         <div ref={memoRef} className="memo-container bg-white shadow-2xl" style={{ width: '148mm', height: '210mm', padding: '5mm', position: 'relative', overflow: 'hidden' }}>
            <div className="w-full h-full border-2 border-black p-3 flex flex-col box-border font-serif text-black">
               
-              {/* Higher Cash Memo Label */}
               <div className="flex justify-center -mt-1 mb-3">
                  <div className="border-2 border-black px-8 py-1.5 text-[14px] font-black uppercase tracking-[3px]">
                     CASH MEMO / ক্যাশ মেমো
                  </div>
               </div>
 
-              {/* Company Header - Standard Black */}
               <div className="text-center">
                  <h1 className="text-[21px] font-black uppercase tracking-tight leading-none mb-2">
                     MASTER COMPUTER & PRINTING PRESS
@@ -104,7 +102,6 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                  <div className="border-t-2 border-black mt-2 mb-4"></div>
               </div>
 
-              {/* Customer Info - All Black */}
               <div className="grid grid-cols-12 gap-y-2 mb-4 text-[14px] font-bold">
                  <div className="col-span-7 space-y-1">
                     <div className="flex items-end">
@@ -132,7 +129,6 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                  </div>
               </div>
 
-              {/* Table - Equal Widths */}
               <div className="flex-grow">
                  <table className="w-full border-collapse border-2 border-black text-[14px]">
                     <thead>
@@ -160,7 +156,6 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                  </table>
               </div>
 
-              {/* Summary Area - No Colors */}
               <div className="mt-4">
                  <div className="grid grid-cols-12 gap-4 items-start">
                     <div className="col-span-7">
@@ -189,7 +184,6 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                     </div>
                  </div>
 
-                 {/* Authority Sign Section */}
                  <div className="mt-10 flex justify-between items-end px-4 text-[13px] font-black uppercase tracking-wider">
                     <div className="text-center w-40 border-t-2 border-black pt-1">
                        Customer Sign

@@ -1,17 +1,18 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Invoice, Customer, InvoiceItem } from '../types';
+import { View, Invoice, Customer, InvoiceItem, NavigationParams } from '../types';
 import { db } from '../services/db';
 import { convertToWords, formatDisplayDate } from '../utils/helpers';
 
 interface CreateInvoiceProps {
   customers: Customer[];
-  navigateTo: (view: View, params?: any) => void;
+  navigateTo: (view: View, params?: NavigationParams) => void;
   refresh: () => void;
   editInvoiceNo?: string | null;
+  initialItems?: Partial<InvoiceItem>[];
+  customerNameParam?: string | null;
 }
 
-const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, refresh, editInvoiceNo }) => {
+const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, refresh, editInvoiceNo, initialItems, customerNameParam }) => {
   const [formData, setFormData] = useState<Partial<Invoice>>({
     invoice_no: '',
     client_name: '',
@@ -31,8 +32,9 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
   const [suggestions, setSuggestions] = useState<Customer[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [includePreviousDue, setIncludePreviousDue] = useState(false);
   const [prevDueAmount, setPrevDueAmount] = useState(0);
+  const [customerHistory, setCustomerHistory] = useState<{ details: string; rate: number; date: string }[]>([]);
+  const [includePreviousDue, setIncludePreviousDue] = useState(false);
   const memoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,16 +42,93 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       loadEditInvoice(editInvoiceNo);
     } else {
       generateInvoiceNo();
+      if (customerNameParam) handleCustomerSelect(customerNameParam);
+      if (initialItems && initialItems.length > 0) loadInitialItems(initialItems);
     }
-  }, [editInvoiceNo]);
+  }, [editInvoiceNo, initialItems, customerNameParam]);
 
   useEffect(() => {
     if (formData.client_name) {
-      checkCustomerDue(formData.client_name);
+      fetchCustomerStats(formData.client_name);
     } else {
       setPrevDueAmount(0);
+      setCustomerHistory([]);
     }
   }, [formData.client_name]);
+
+  const fetchCustomerStats = async (name: string) => {
+    try {
+      const allInvoices = await db.getInvoices();
+      const currentNo = formData.invoice_no;
+      const filtered = allInvoices.filter(inv => 
+        inv.client_name.toLowerCase().trim() === name.toLowerCase().trim() && 
+        inv.invoice_no !== currentNo
+      );
+      
+      const invoiceDue = filtered.reduce((sum, inv) => sum + (Number(inv.due) || 0), 0);
+      const trans = await db.getTransactions(name);
+      const transBalance = trans.reduce((sum, t) => t.type === 'Due' ? sum + t.amount : sum - t.amount, 0);
+      setPrevDueAmount(invoiceDue + transBalance);
+
+      const items: { details: string; rate: number; date: string }[] = [];
+      const seen = new Set();
+      const sortedInvs = [...filtered].sort((a, b) => new Date(b.memo_date).getTime() - new Date(a.memo_date).getTime());
+      
+      for (const inv of sortedInvs) {
+        if (items.length >= 5) break;
+        for (const item of inv.items) {
+          if (items.length >= 5) break;
+          const key = `${item.details.trim().toLowerCase()}_${item.rate}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            items.push({ details: item.details, rate: item.rate, date: inv.memo_date });
+          }
+        }
+      }
+      setCustomerHistory(items);
+    } catch (e) {
+      console.error("Stats fetch error:", e);
+    }
+  };
+
+  const handleCustomerSelect = (name: string) => {
+    const cust = customers.find(c => c.name.toLowerCase() === name.toLowerCase());
+    if (cust) {
+      setFormData(prev => ({ 
+        ...prev, 
+        client_name: cust.name, 
+        client_address: cust.address, 
+        client_mobile: cust.mobile 
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, client_name: name }));
+    }
+    setShowSuggestions(false);
+  };
+
+  const loadInitialItems = (items: Partial<InvoiceItem>[]) => {
+    const itemsToLoad = items.map(item => ({
+      id: Date.now() + Math.random(),
+      details: item.details || '',
+      qty: item.qty || 1,
+      rate: item.rate || 0,
+      total: item.total || 0,
+      len: item.len || '',
+      wid: item.wid || ''
+    }));
+    
+    setFormData(prev => {
+      const updatedItems = [...itemsToLoad];
+      const subtotal = updatedItems.reduce((sum, it) => sum + (Number(it.total) || 0), 0);
+      return {
+        ...prev,
+        items: updatedItems,
+        grand_total: subtotal,
+        due: subtotal - (Number(prev.advance) || 0),
+        in_word: convertToWords(subtotal)
+      };
+    });
+  };
 
   const loadEditInvoice = async (no: string) => {
     try {
@@ -75,25 +154,6 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       setFormData(prev => ({ ...prev, invoice_no: (lastNo + 1).toString() }));
     } catch (err) {
       console.error(err);
-    }
-  };
-
-  const checkCustomerDue = async (name: string) => {
-    try {
-      const allInvs = await db.getInvoices();
-      const currentInvoiceNo = formData.invoice_no;
-      const otherInvs = allInvs.filter(i => 
-        i.client_name.toLowerCase().trim() === name.toLowerCase().trim() && 
-        i.invoice_no !== currentInvoiceNo
-      );
-      const invoiceDueTotal = otherInvs.reduce((sum, i) => sum + (Number(i.due) || 0), 0);
-      
-      const trans = await db.getTransactions(name);
-      const transBalance = trans.reduce((sum, t) => t.type === 'Due' ? sum + t.amount : sum - t.amount, 0);
-      
-      setPrevDueAmount(invoiceDueTotal + transBalance);
-    } catch (e) {
-      console.error("Error checking due:", e);
     }
   };
 
@@ -153,10 +213,24 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
     calculateTotals(newItems, Number(formData.advance) || 0);
   };
 
-  const markAsFullyPaid = () => {
-    const total = formData.grand_total || 0;
-    setFormData(prev => ({ ...prev, advance: total, due: 0, is_paid: true }));
-    alert("Payment status updated to PAID. Please Save to confirm.");
+  const addHistoricalItem = (item: { details: string; rate: number }) => {
+    const newItem: InvoiceItem = {
+      id: Date.now() + Math.random(),
+      details: item.details,
+      qty: 1,
+      rate: item.rate,
+      total: item.rate,
+      len: '',
+      wid: ''
+    };
+    
+    const currentItems = [...(formData.items || [])];
+    if (currentItems.length === 1 && !currentItems[0].details && currentItems[0].total === 0) {
+      currentItems[0] = newItem;
+    } else {
+      currentItems.push(newItem);
+    }
+    calculateTotals(currentItems, Number(formData.advance) || 0);
   };
 
   const saveInvoice = async () => {
@@ -173,7 +247,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
         grand_total: Number(formData.grand_total) || 0,
         advance: Number(formData.advance) || 0,
         due: Number(formData.due) || 0,
-        is_paid: formData.is_paid || false,
+        is_paid: (Number(formData.due) || 0) <= 0,
         memo_date: formData.memo_date || new Date().toISOString().slice(0, 10),
         is_walk_in: formData.is_walk_in || false,
         items: formData.items || [],
@@ -210,239 +284,170 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
   };
 
   return (
-    <div className="animate-in slide-in-from-bottom duration-500 pb-44 px-4 md:px-0">
-      <div className="flex items-center justify-between mb-8 no-print">
-        <h1 className="text-3xl font-bold text-[#333]">{editInvoiceNo ? 'Edit Invoice' : 'Create New Invoice'}</h1>
-        <button onClick={() => navigateTo(View.Invoices)} className="text-lightText hover:text-primary transition-colors flex items-center font-bold">
+    <div className="animate-in slide-in-from-bottom duration-500 pb-44">
+      <div className="flex items-center justify-between mb-8 no-print px-4">
+        <h1 className="text-3xl font-bold text-black">{editInvoiceNo ? 'Edit Invoice' : 'Create New Invoice'}</h1>
+        <button onClick={() => navigateTo(View.Invoices)} className="text-gray-500 hover:text-black transition-colors font-bold">
           <i className="fas fa-times mr-2 text-lg"></i> Close
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 no-print">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
-            <h3 className="font-bold mb-6 text-primary text-xl border-b pb-2 flex items-center uppercase tracking-tighter">
-              <i className="fas fa-user-circle mr-2"></i> Memo Header
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="relative">
-                <label className="text-[10px] font-black text-lightText uppercase mb-1.5 block">Customer Name*</label>
-                <input 
-                  type="text" 
-                  className="w-full px-4 py-3 rounded-xl border font-bengali font-bold outline-none focus:ring-2 focus:ring-primary/20 bg-white"
-                  value={formData.client_name || ''}
-                  onChange={(e) => handleInputChange('client_name', e.target.value)}
-                  placeholder="Enter customer name"
-                />
-                {showSuggestions && suggestions.length > 0 && (
-                  <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white shadow-2xl border border-border rounded-xl max-h-60 overflow-y-auto">
-                    {suggestions.map(s => (
-                      <div key={s.id} className="px-4 py-3 hover:bg-secondary cursor-pointer border-b font-bengali font-bold" onClick={() => { setFormData(prev => ({ ...prev, client_name: s.name, client_address: s.address, client_mobile: s.mobile })); setShowSuggestions(false); }}>
-                        <div className="flex justify-between">
-                          <span>{s.name}</span>
-                          <span className="text-[10px] text-lightText bg-gray-100 px-2 py-0.5 rounded-full">{s.mobile}</span>
-                        </div>
+      <div className="max-w-5xl mx-auto space-y-6 no-print px-4">
+        
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
+          <h3 className="font-bold mb-6 text-black text-xl border-b pb-2 flex items-center uppercase tracking-tighter">
+            <i className="fas fa-user-circle mr-2"></i> Customer Info
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="relative">
+              <label className="text-[10px] font-black text-gray-500 uppercase mb-1.5 block tracking-widest">Name*</label>
+              <input 
+                type="text" 
+                className="w-full px-4 py-3 rounded-xl border font-bengali font-bold outline-none focus:ring-2 focus:ring-black/5 bg-white"
+                value={formData.client_name || ''}
+                onChange={(e) => handleInputChange('client_name', e.target.value)}
+                placeholder="কাস্টমারের নাম..."
+              />
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white shadow-2xl border border-border rounded-xl max-h-60 overflow-y-auto">
+                  {suggestions.map(s => (
+                    <div key={s.id} className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b font-bengali font-bold" onClick={() => handleCustomerSelect(s.name)}>
+                      <div className="flex justify-between">
+                        <span>{s.name}</span>
+                        <span className="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{s.mobile}</span>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="text-[10px] font-black text-lightText uppercase mb-1.5 block">Customer Address</label>
-                <input type="text" className="w-full px-4 py-3 rounded-xl border font-bengali outline-none focus:ring-2 focus:ring-primary/20 bg-white" value={formData.client_address || ''} onChange={(e) => handleInputChange('client_address', e.target.value)} placeholder="Enter address" />
-              </div>
-
-              <div>
-                <label className="text-[10px] font-black text-lightText uppercase mb-1.5 block">Mobile Number</label>
-                <input type="text" className="w-full px-4 py-3 rounded-xl border outline-none focus:ring-2 focus:ring-primary/20 bg-white" value={formData.client_mobile || ''} onChange={(e) => handleInputChange('client_mobile', e.target.value)} placeholder="017xxxxxxxx" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                   <label className="text-[10px] font-black text-lightText uppercase mb-1.5 block">Memo Serial</label>
-                   <input type="text" className="w-full px-4 py-3 rounded-xl border bg-gray-100 font-black text-center" value={formData.invoice_no} readOnly />
-                </div>
-                <div>
-                  <label className="text-[10px] font-black text-lightText uppercase mb-1.5 block">Memo Date</label>
-                  <input type="date" className="w-full px-4 py-3 rounded-xl border font-bold outline-none focus:ring-2 focus:ring-primary/20 bg-white" value={formData.memo_date} onChange={(e) => handleInputChange('memo_date', e.target.value)} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-bold text-primary text-xl border-b pb-2 flex items-center uppercase tracking-tighter">
-                <i className="fas fa-list-ul mr-2"></i> Work Items
-              </h3>
-              <button onClick={() => setBannerMode(!bannerMode)} className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${bannerMode ? 'bg-primary text-white shadow-lg' : 'bg-gray-200 text-gray-500'}`}>
-                {bannerMode ? 'Banner Mode On (Sqft)' : 'Banner Mode Off'}
-              </button>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-secondary text-[10px] uppercase font-black text-lightText tracking-widest text-left">
-                    <th className="p-3 border">Description</th>
-                    {bannerMode && <th className="p-3 border w-24 text-center">Len</th>}
-                    {bannerMode && <th className="p-3 border w-24 text-center">Wid</th>}
-                    <th className="p-3 border w-24 text-center">Qty</th>
-                    <th className="p-3 border w-24 text-center">Rate</th>
-                    <th className="p-3 border w-32 text-right">Total</th>
-                    <th className="p-3 border w-10"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {formData.items?.map((item, idx) => (
-                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="p-0 border">
-                        <input className="w-full px-3 py-3 font-bengali font-bold outline-none bg-transparent" value={item.details} onChange={(e) => handleItemChange(idx, 'details', e.target.value)} placeholder="Work description" />
-                      </td>
-                      {bannerMode && (
-                        <td className="p-0 border">
-                          <input type="number" className="w-full px-2 py-3 text-center outline-none bg-indigo-50/20" value={item.len || ''} onChange={(e) => handleItemChange(idx, 'len', e.target.value)} placeholder="0" />
-                        </td>
-                      )}
-                      {bannerMode && (
-                        <td className="p-0 border">
-                          <input type="number" className="w-full px-2 py-3 text-center outline-none bg-indigo-50/20" value={item.wid || ''} onChange={(e) => handleItemChange(idx, 'wid', e.target.value)} placeholder="0" />
-                        </td>
-                      )}
-                      <td className="p-0 border">
-                        <input type="number" className="w-full px-2 py-3 text-center outline-none font-bold" value={item.qty} onChange={(e) => handleItemChange(idx, 'qty', e.target.value)} />
-                      </td>
-                      <td className="p-0 border">
-                        <input type="number" className="w-full px-2 py-3 text-center outline-none font-bold" value={item.rate} onChange={(e) => handleItemChange(idx, 'rate', e.target.value)} />
-                      </td>
-                      <td className="p-0 border">
-                        <input 
-                          type="number" 
-                          className="w-full px-4 py-3 text-right outline-none font-black bg-gray-50 text-indigo-700" 
-                          value={item.total} 
-                          onChange={(e) => handleItemChange(idx, 'total', e.target.value)} 
-                        />
-                      </td>
-                      <td className="p-0 border text-center">
-                        <button onClick={() => { const itms = [...formData.items!]; itms.splice(idx, 1); calculateTotals(itms, formData.advance!) }} className="text-danger hover:scale-125 transition-transform"><i className="fas fa-trash-alt text-xs"></i></button>
-                      </td>
-                    </tr>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              )}
+              {formData.client_name && prevDueAmount > 0 && (
+                <p className="mt-2 text-danger font-black font-bengali text-sm animate-pulse">
+                  আগের মোট বকেয়া: ৳{prevDueAmount.toLocaleString()}
+                </p>
+              )}
             </div>
+
+            <div><label className="text-[10px] font-black text-gray-500 uppercase mb-1.5 block tracking-widest">Address</label><input type="text" className="w-full px-4 py-3 rounded-xl border font-bengali outline-none focus:ring-2 focus:ring-black/5 bg-white" value={formData.client_address || ''} onChange={(e) => handleInputChange('client_address', e.target.value)} placeholder="ঠিকানা" /></div>
+            <div><label className="text-[10px] font-black text-gray-500 uppercase mb-1.5 block tracking-widest">Mobile</label><input type="text" className="w-full px-4 py-3 rounded-xl border outline-none focus:ring-2 focus:ring-black/5 bg-white" value={formData.client_mobile || ''} onChange={(e) => handleInputChange('client_mobile', e.target.value)} placeholder="017xxxxxxxx" /></div>
             
-            <div className="flex justify-end mt-4">
-              <button onClick={() => setFormData(p => ({ ...p, items: [...p.items!, { id: Date.now(), details: '', qty: 1, rate: 0, total: 0, len: '', wid: '' }] }))} className="bg-primary/10 text-primary px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
-                <i className="fas fa-plus mr-1"></i> Add new row
-              </button>
+            <div className="grid grid-cols-2 gap-4 md:col-span-2">
+              <div><label className="text-[10px] font-black text-gray-500 uppercase mb-1.5 block tracking-widest">Serial No</label><input type="text" className="w-full px-4 py-3 rounded-xl border bg-gray-100 font-black text-center" value={formData.invoice_no} readOnly /></div>
+              <div><label className="text-[10px] font-black text-gray-500 uppercase mb-1.5 block tracking-widest">Date</label><input type="date" className="w-full px-4 py-3 rounded-xl border font-bold outline-none focus:ring-2 focus:ring-black/5 bg-white" value={formData.memo_date} onChange={(e) => handleInputChange('memo_date', e.target.value)} /></div>
             </div>
           </div>
+
+          {customerHistory.length > 0 && (
+            <div className="mt-8 pt-6 border-t border-dashed">
+              <h4 className="text-black font-black mb-4 text-sm flex items-center font-bengali uppercase tracking-widest"><i className="fas fa-history mr-2 text-gray-400"></i> কাজের বিবরণী (গত ৫টি আইটেম)</h4>
+              <div className="flex flex-wrap gap-2">
+                {customerHistory.map((item, i) => (
+                  <button key={i} onClick={() => addHistoricalItem(item)} className="px-4 py-3 bg-gray-50 hover:bg-black hover:text-white transition-all rounded-xl border border-gray-100 flex items-center gap-3 group">
+                    <div className="flex flex-col items-start">
+                      <span className="font-bengali font-bold text-sm">{item.details}</span>
+                      <span className="text-[10px] font-black text-gray-400 group-hover:text-gray-300">৳{item.rate}</span>
+                    </div>
+                    <i className="fas fa-plus text-xs text-success group-hover:text-white"></i>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="lg:col-span-1 space-y-6 no-print">
-           <div className="bg-white p-6 rounded-2xl border border-border shadow-sm">
-              <h4 className="font-black mb-4 text-primary uppercase tracking-tighter border-b pb-2 flex items-center">
-                <i className="fas fa-receipt mr-2"></i> Financial Summary
-              </h4>
-              <div className="space-y-4">
-                 <div>
-                    <label className="text-[10px] font-black text-lightText uppercase mb-1 block">Total Amount</label>
-                    <input type="text" className="w-full px-4 py-3 rounded-xl border bg-gray-50 font-black text-xl" value={`৳${formData.grand_total?.toFixed(0)}`} readOnly />
-                 </div>
-                 <div>
-                    <label className="text-[10px] font-black text-lightText uppercase mb-1 block">Advance Paid</label>
-                    <input type="number" className="w-full px-4 py-3 rounded-xl border font-black text-xl text-success outline-none focus:ring-2 focus:ring-success/20" value={formData.advance || ''} onChange={(e) => handleInputChange('advance', e.target.value)} placeholder="0" />
-                 </div>
-                 <div className="p-4 bg-danger/5 rounded-xl border border-danger/10">
-                    <label className="text-[10px] font-black text-danger uppercase mb-1 block">Total Due</label>
-                    <div className="text-3xl font-black text-danger tracking-tighter">৳{formData.due?.toFixed(0)}</div>
-                 </div>
-              </div>
-           </div>
-           
-           <div className="sticky top-24 space-y-3">
-              <button onClick={handlePrint} className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest text-xs">
-                <i className="fas fa-print text-lg"></i> Print Memo
-              </button>
-              <button onClick={saveInvoice} disabled={isSaving} className="w-full py-4 bg-primary text-white rounded-2xl font-black flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest text-xs">
-                <i className="fas fa-save text-lg"></i> {isSaving ? 'Saving...' : 'Save & Close'}
-              </button>
-           </div>
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="font-bold text-black text-xl border-b pb-2 flex items-center uppercase tracking-tighter"><i className="fas fa-list-ul mr-2"></i> Work Items</h3>
+            <button onClick={() => setBannerMode(!bannerMode)} className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${bannerMode ? 'bg-black text-white' : 'bg-gray-100 text-gray-400'}`}>Banner Mode: {bannerMode ? 'ON' : 'OFF'}</button>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100 text-[10px] uppercase font-black text-gray-500 tracking-widest text-left">
+                  <th className="p-4 border">Details</th>
+                  {bannerMode && <th className="p-4 border w-24 text-center">Len</th>}
+                  {bannerMode && <th className="p-4 border w-24 text-center">Wid</th>}
+                  <th className="p-4 border w-28 text-center">Qty</th>
+                  <th className="p-4 border w-28 text-center">Rate</th>
+                  <th className="p-4 border w-40 text-right">Total</th>
+                  <th className="p-4 border w-10"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {formData.items?.map((item, idx) => (
+                  <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="p-0 border"><input className="w-full px-4 py-4 font-bengali font-bold outline-none bg-transparent" value={item.details} onChange={(e) => handleItemChange(idx, 'details', e.target.value)} placeholder="..." /></td>
+                    {bannerMode && <td className="p-0 border"><input type="number" className="w-full px-2 py-4 text-center outline-none bg-gray-50" value={item.len || ''} onChange={(e) => handleItemChange(idx, 'len', e.target.value)} /></td>}
+                    {bannerMode && <td className="p-0 border"><input type="number" className="w-full px-2 py-4 text-center outline-none bg-gray-50" value={item.wid || ''} onChange={(e) => handleItemChange(idx, 'wid', e.target.value)} /></td>}
+                    <td className="p-0 border"><input type="number" className="w-full px-2 py-4 text-center outline-none font-bold" value={item.qty} onChange={(e) => handleItemChange(idx, 'qty', e.target.value)} /></td>
+                    <td className="p-0 border"><input type="number" className="w-full px-2 py-4 text-center outline-none font-bold" value={item.rate} onChange={(e) => handleItemChange(idx, 'rate', e.target.value)} /></td>
+                    <td className="p-0 border"><input type="number" className="w-full px-4 py-4 text-right outline-none font-black bg-gray-50 text-black text-lg" value={item.total} onChange={(e) => handleItemChange(idx, 'total', e.target.value)} /></td>
+                    <td className="p-0 border text-center"><button onClick={() => { const itms = [...formData.items!]; itms.splice(idx, 1); calculateTotals(itms, formData.advance!) }} className="text-gray-400 hover:text-black"><i className="fas fa-trash-alt text-xs"></i></button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <button onClick={() => setFormData(p => ({ ...p, items: [...p.items!, { id: Date.now(), details: '', qty: 1, rate: 0, total: 0, len: '', wid: '' }] }))} className="mt-4 bg-black text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest"><i className="fas fa-plus mr-1"></i> Add row</button>
+        </div>
+
+        <div className="bg-white p-8 rounded-2xl border border-border shadow-md">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+             <div className="space-y-8">
+                <div><label className="text-xs font-black text-gray-400 uppercase mb-2 block tracking-widest">Total Bill (৳)</label><input type="text" className="w-full px-6 py-8 rounded-2xl border bg-gray-100 font-black text-6xl tracking-tighter text-black" value={formData.grand_total?.toFixed(0)} readOnly /></div>
+                <div><label className="text-xs font-black text-gray-400 uppercase mb-2 block tracking-widest">In Words</label><div className="w-full px-6 py-4 rounded-xl border bg-gray-50 italic text-lg font-black font-bengali text-black min-h-[60px] flex items-center">{formData.in_word}</div></div>
+             </div>
+             <div className="space-y-8">
+                <div><label className="text-xs font-black text-gray-400 uppercase mb-2 block tracking-widest">Advance Paid (৳)</label><input type="number" className="w-full px-6 py-8 rounded-2xl border-2 border-black font-black text-6xl text-black outline-none shadow-inner" value={formData.advance || ''} onChange={(e) => handleInputChange('advance', e.target.value)} placeholder="0" /></div>
+                <div className="p-8 bg-black rounded-3xl border-4 border-black text-white shadow-2xl">
+                   <label className="text-xs font-black text-gray-400 uppercase mb-2 block tracking-widest">Balance Due (৳)</label>
+                   <div className="text-7xl font-black tracking-tighter">৳{formData.due?.toFixed(0)}</div>
+                </div>
+             </div>
+          </div>
+          {prevDueAmount > 0 && (
+            <div className="mt-10 pt-6 border-t border-dashed flex items-center gap-4">
+              <input type="checkbox" id="includePrevDue" className="w-6 h-6 accent-black cursor-pointer" checked={includePreviousDue} onChange={(e) => setIncludePreviousDue(e.target.checked)} />
+              <label htmlFor="includePrevDue" className="text-danger font-black font-bengali text-xl cursor-pointer">প্রিন্টে পূর্বের বকেয়া যোগ করুন</label>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 pb-10">
+           <button onClick={handlePrint} className="w-full py-6 bg-gray-900 text-white rounded-3xl font-black flex items-center justify-center gap-4 shadow-2xl hover:bg-black transition-all uppercase tracking-widest text-lg"><i className="fas fa-print text-2xl"></i> Print Memo</button>
+           <button onClick={saveInvoice} disabled={isSaving} className="w-full py-6 border-4 border-black text-black rounded-3xl font-black flex items-center justify-center gap-4 bg-white hover:bg-black hover:text-white transition-all uppercase tracking-widest text-lg"><i className="fas fa-save text-2xl"></i> {isSaving ? 'Processing...' : 'Save & Close'}</button>
         </div>
       </div>
 
-      {/* PRINT TEMPLATE - GRAYSCALE / BLACK ONLY */}
       <div id="memo-print-template" className="hidden">
         <div ref={memoRef} className="memo-container bg-white text-black font-serif" style={{ width: '148mm', height: '210mm', padding: '5mm', position: 'relative' }}>
            <div className="w-full h-full border-2 border-black p-3 flex flex-col box-border">
-              
-              {/* Higher Cash Memo Label */}
-              <div className="flex justify-center -mt-1 mb-3">
-                 <div className="border-2 border-black px-8 py-1.5 text-[14px] font-black uppercase tracking-[3px]">
-                    CASH MEMO / ক্যাশ মেমো
-                 </div>
-              </div>
-
-              {/* Company Header - Standard Black */}
+              <div className="flex justify-center -mt-1 mb-3"><div className="border-2 border-black px-8 py-1.5 text-[14px] font-black uppercase tracking-[3px]">CASH MEMO</div></div>
               <div className="text-center">
-                 <h1 className="text-[21px] font-black uppercase tracking-tight leading-none mb-2">
-                    MASTER COMPUTER & PRINTING PRESS
-                 </h1>
-                 
+                 <h1 className="text-[21px] font-black uppercase tracking-tight leading-none mb-2">MASTER COMPUTER & PRINTING PRESS</h1>
                  <div className="border-t-2 border-black mt-1 mb-1"></div>
-
-                 <div className="flex justify-between items-center px-1 py-0.5 font-bold text-[14px]">
-                    <span>Proprietor: S.M. Shahjahan</span>
-                    <div className="bg-black text-white px-5 py-0.5 rounded-sm font-sans font-black tracking-widest text-[14px]">
-                       01720-365191
-                    </div>
-                 </div>
-
-                 <div className="flex justify-center mt-1">
-                    <div className="border-2 border-black px-6 py-0.5 text-[12px] font-bold">
-                       Primary association Market, Sakhipur, Tangail
-                    </div>
-                 </div>
+                 <div className="flex justify-between items-center px-1 py-0.5 font-bold text-[14px]"><span>Proprietor: S.M. Shahjahan</span><div className="bg-black text-white px-5 py-0.5 rounded-sm font-sans font-black tracking-widest text-[14px]">01720-365191</div></div>
+                 <div className="flex justify-center mt-1"><div className="border-2 border-black px-6 py-0.5 text-[12px] font-bold">Primary association Market, Sakhipur, Tangail</div></div>
                  <div className="border-t-2 border-black mt-2 mb-4"></div>
               </div>
-
-              {/* Client Info Grid - All Black */}
               <div className="grid grid-cols-12 gap-y-2 mb-4 text-[14px] font-bold">
                  <div className="col-span-7 space-y-1">
-                    <div className="flex items-end">
-                       <span className="w-16">Serial:</span>
-                       <span className="border-b border-black flex-1 pl-2 pb-0 font-black">#{formData.invoice_no}</span>
-                    </div>
-                    <div className="flex items-end font-bengali">
-                       <span className="w-16">Name:</span>
-                       <span className="border-b border-black flex-1 pl-2 pb-0 font-black">{formData.client_name}</span>
-                    </div>
-                    <div className="flex items-end font-bengali">
-                       <span className="w-16">Address:</span>
-                       <span className="border-b border-black flex-1 pl-2 pb-0 font-medium">{formData.client_address || '...'}</span>
-                    </div>
+                    <div className="flex items-end"><span className="w-16">Serial:</span><span className="border-b border-black flex-1 pl-2 pb-0 font-black">#{formData.invoice_no}</span></div>
+                    <div className="flex items-end font-bengali"><span className="w-16">Name:</span><span className="border-b border-black flex-1 pl-2 pb-0 font-black">{formData.client_name}</span></div>
+                    <div className="flex items-end font-bengali"><span className="w-16">Address:</span><span className="border-b border-black flex-1 pl-2 pb-0 font-medium">{formData.client_address || '...'}</span></div>
                  </div>
                  <div className="col-span-5 space-y-1">
-                    <div className="flex items-end justify-end">
-                       <span className="mr-3">Date:</span>
-                       <span className="border-b border-black flex-1 text-center pb-0 font-black">{new Date(formData.memo_date || '').toLocaleDateString('en-GB')}</span>
-                    </div>
-                    <div className="flex items-end justify-end font-sans">
-                       <span className="mr-3">Mobile:</span>
-                       <span className="border-b border-black flex-1 text-center pb-0 font-black">{formData.client_mobile || '...'}</span>
-                    </div>
+                    <div className="flex items-end justify-end"><span className="mr-3">Date:</span><span className="border-b border-black flex-1 text-center pb-0 font-black">{new Date(formData.memo_date || '').toLocaleDateString('en-GB')}</span></div>
+                    <div className="flex items-end justify-end font-sans"><span className="mr-3">Mobile:</span><span className="border-b border-black flex-1 text-center pb-0 font-black">{formData.client_mobile || '...'}</span></div>
                  </div>
               </div>
-
-              {/* Table - Equal widths for Qty/Rate */}
               <div className="flex-grow">
                  <table className="w-full border-collapse border-2 border-black text-[14px]">
                     <thead>
                        <tr className="border-b-2 border-black h-8 bg-white">
                           <th className="border-r-2 border-black w-10 text-center">SL</th>
-                          <th className="border-r-2 border-black text-center">Work Description</th>
+                          <th className="border-r-2 border-black text-center">Description</th>
                           <th className="border-r-2 border-black w-24 text-center">Qty / Size</th>
                           <th className="border-r-2 border-black w-24 text-center">Rate</th>
                           <th className="w-24 text-center">Total (৳)</th>
@@ -453,23 +458,28 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                           <tr key={item.id} className="border-b border-black h-8 align-middle">
                              <td className="border-r-2 border-black text-center">{i+1}</td>
                              <td className="border-r-2 border-black pl-3 font-bengali leading-none">{item.details}</td>
-                             <td className="border-r-2 border-black text-center font-sans">
-                                {item.len && item.wid ? `${item.len}x${item.wid}` : (item.qty || '')}
-                             </td>
+                             <td className="border-r-2 border-black text-center font-sans">{item.len && item.wid ? `${item.len}x${item.wid}` : (item.qty || '')}</td>
                              <td className="border-r-2 border-black text-center">{item.rate || ''}</td>
                              <td className="text-right pr-3 font-sans">৳{item.total}/-</td>
                           </tr>
                        ))}
+                       {includePreviousDue && prevDueAmount > 0 && (
+                          <tr className="border-b border-black h-8 align-middle bg-gray-50">
+                             <td className="border-r-2 border-black text-center">-</td>
+                             <td className="border-r-2 border-black pl-3 font-bengali italic leading-none">সাবেক বকেয়া (Previous Due)</td>
+                             <td className="border-r-2 border-black text-center">-</td>
+                             <td className="border-r-2 border-black text-center">-</td>
+                             <td className="text-right pr-3 font-sans">৳{prevDueAmount}/-</td>
+                          </tr>
+                       )}
                     </tbody>
                  </table>
               </div>
-
-              {/* Summary and Signature at Bottom - No Colors */}
               <div className="mt-4">
                  <div className="grid grid-cols-12 gap-4 items-start">
                     <div className="col-span-7">
                        <div className="border-2 border-black p-2 h-16 flex flex-col justify-between">
-                          <div className="text-[10px] uppercase font-black text-gray-500 mb-1">কথায় / IN WORDS:</div>
+                          <div className="text-[10px] uppercase font-black text-gray-500 mb-1">IN WORDS:</div>
                           <div className="italic text-[14px] font-black font-bengali leading-tight truncate">
                              {convertToWords((Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0))}
                           </div>
@@ -477,36 +487,20 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                     </div>
                     <div className="col-span-5">
                        <div className="border-l-4 border-black pl-4 space-y-0.5 text-[14px]">
-                          <div className="flex justify-between items-center py-0.5 border-b border-black font-bold">
-                             <span>Total:</span>
-                             <span className="font-black">৳{(Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0)}/-</span>
-                          </div>
-                          <div className="flex justify-between items-center py-0.5 border-b border-black font-bold">
-                             <span>Paid:</span>
-                             <span className="font-black">৳{Number(formData.advance).toFixed(0)}/-</span>
-                          </div>
-                          <div className="flex justify-between items-center py-1 px-2 bg-white border border-black font-black text-[16px] mt-1">
-                             <span>DUE:</span>
-                             <span>৳{((Number(formData.due) || 0) + (includePreviousDue ? prevDueAmount : 0)).toFixed(0)}/-</span>
-                          </div>
+                          <div className="flex justify-between items-center py-0.5 border-b border-black font-bold"><span>Subtotal:</span><span className="font-black">৳{(Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0)}/-</span></div>
+                          <div className="flex justify-between items-center py-0.5 border-b border-black font-bold"><span>Paid:</span><span className="font-black">৳{Number(formData.advance).toFixed(0)}/-</span></div>
+                          <div className="flex justify-between items-center py-1 px-2 bg-white border border-black font-black text-[16px] mt-1"><span>GRAND DUE:</span><span>৳{((Number(formData.due) || 0) + (includePreviousDue ? prevDueAmount : 0)).toFixed(0)}/-</span></div>
                        </div>
                     </div>
                  </div>
-
-                 {/* Signature Section - Black Only */}
                  <div className="mt-10 flex justify-between items-end px-4 text-[13px] font-black uppercase tracking-wider">
-                    <div className="text-center w-40 border-t-2 border-black pt-1">
-                       Customer Sign
-                    </div>
+                    <div className="text-center w-40 border-t-2 border-black pt-1">Customer Sign</div>
                     <div className="text-center w-48 relative">
                        <div className="text-[14px] font-black italic tracking-tighter mb-0.5 text-black">Authority</div>
-                       <div className="border-t-2 border-black pt-1">
-                          Authorized Sign
-                       </div>
+                       <div className="border-t-2 border-black pt-1">Authorized Sign</div>
                     </div>
                  </div>
               </div>
-
            </div>
         </div>
       </div>
