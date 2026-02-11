@@ -8,7 +8,6 @@ import CreateInvoice from './views/CreateInvoice';
 import InvoiceDetails from './views/InvoiceDetails';
 import CustomerList from './views/CustomerList';
 import CustomerDetails from './views/CustomerDetails';
-import Backup from './views/Backup';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.Dashboard);
@@ -75,8 +74,6 @@ const App: React.FC = () => {
         return <CustomerList customers={customers} invoices={invoices} navigateTo={navigateTo} refresh={fetchData} />;
       case View.CustomerDetails:
         return <CustomerDetails customerName={selectedCustomerName} navigateTo={navigateTo} refresh={fetchData} />;
-      case View.Backup:
-        return <Backup />;
       default:
         return <Dashboard invoices={invoices} customers={customers} navigateTo={navigateTo} />;
     }
@@ -115,11 +112,6 @@ const App: React.FC = () => {
             <li>
               <button onClick={() => navigateTo(View.Customers)} className={`w-full flex items-center px-5 py-4 rounded-2xl text-sm font-bold transition-all ${[View.Customers, View.CustomerDetails].includes(currentView) ? 'bg-black text-white shadow-lg' : 'text-gray-500 hover:bg-secondary'}`}>
                 <i className="fas fa-users mr-4 text-xl"></i> Customers
-              </button>
-            </li>
-            <li>
-              <button onClick={() => navigateTo(View.Backup)} className={`w-full flex items-center px-5 py-4 rounded-2xl text-sm font-bold transition-all ${currentView === View.Backup ? 'bg-black text-white shadow-lg' : 'text-gray-500 hover:bg-secondary'}`}>
-                <i className="fas fa-database mr-4 text-xl"></i> Data Backup
               </button>
             </li>
           </ul>

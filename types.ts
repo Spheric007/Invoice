@@ -70,8 +70,7 @@ export enum View {
   EditInvoice = 'edit-invoice',
   InvoiceView = 'invoice-view',
   Customers = 'customers',
-  CustomerDetails = 'customer-details',
-  Backup = 'backup'
+  CustomerDetails = 'customer-details'
 }
 
 export interface NavigationParams {
