@@ -36,13 +36,12 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
   const handleDownloadPNG = async () => {
     if (memoRef.current) {
       try {
-        // High quality scale and specific window size for A5 capture
         // @ts-ignore
         const canvas = await html2canvas(memoRef.current, { 
           scale: 4, 
           useCORS: true, 
           backgroundColor: "#ffffff",
-          windowWidth: 148 * 3.78, // mm to pixel approx
+          windowWidth: 148 * 3.78,
           windowHeight: 210 * 3.78
         });
         const link = document.createElement('a');
@@ -85,7 +84,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                  </div>
               </div>
 
-              {/* Company Header - Small font for one line */}
+              {/* Company Header - Standard Black */}
               <div className="text-center">
                  <h1 className="text-[21px] font-black uppercase tracking-tight leading-none mb-2">
                     MASTER COMPUTER & PRINTING PRESS
@@ -105,7 +104,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                  <div className="border-t-2 border-black mt-2 mb-4"></div>
               </div>
 
-              {/* Customer Info - All 14px, Tight */}
+              {/* Customer Info - All Black */}
               <div className="grid grid-cols-12 gap-y-2 mb-4 text-[14px] font-bold">
                  <div className="col-span-7 space-y-1">
                     <div className="flex items-end">
@@ -133,15 +132,15 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                  </div>
               </div>
 
-              {/* Table - 14px text */}
+              {/* Table - Equal Widths */}
               <div className="flex-grow">
                  <table className="w-full border-collapse border-2 border-black text-[14px]">
                     <thead>
-                       <tr className="border-b-2 border-black h-8 bg-gray-50">
+                       <tr className="border-b-2 border-black h-8 bg-white">
                           <th className="border-r-2 border-black w-10 text-center">SL</th>
                           <th className="border-r-2 border-black text-center">Work Description</th>
                           <th className="border-r-2 border-black w-24 text-center">Qty / Size</th>
-                          <th className="border-r-2 border-black w-20 text-center">Rate</th>
+                          <th className="border-r-2 border-black w-24 text-center">Rate</th>
                           <th className="w-24 text-center">Total (৳)</th>
                        </tr>
                     </thead>
@@ -151,9 +150,9 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                              <td className="border-r-2 border-black text-center">{i+1}</td>
                              <td className="border-r-2 border-black pl-3 font-bengali leading-none">{item.details}</td>
                              <td className="border-r-2 border-black text-center font-sans">
-                                {item.len && item.wid ? `${item.len}x${item.wid}` : item.qty}
+                                {item.len && item.wid ? `${item.len}x${item.wid}` : (item.qty || '')}
                              </td>
-                             <td className="border-r-2 border-black text-center">{item.rate}</td>
+                             <td className="border-r-2 border-black text-center">{item.rate || ''}</td>
                              <td className="text-right pr-3 font-sans">৳{item.total}/-</td>
                           </tr>
                        ))}
@@ -161,7 +160,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                  </table>
               </div>
 
-              {/* Summary Area */}
+              {/* Summary Area - No Colors */}
               <div className="mt-4">
                  <div className="grid grid-cols-12 gap-4 items-start">
                     <div className="col-span-7">
@@ -174,15 +173,15 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                     </div>
                     <div className="col-span-5">
                        <div className="border-l-4 border-black pl-4 space-y-0.5 text-[14px]">
-                          <div className="flex justify-between items-center py-0.5 border-b border-gray-200 font-bold">
+                          <div className="flex justify-between items-center py-0.5 border-b border-black font-bold">
                              <span>Total:</span>
                              <span className="font-black">৳{invoice.grand_total}/-</span>
                           </div>
-                          <div className="flex justify-between items-center py-0.5 border-b border-gray-200 font-bold text-green-700">
+                          <div className="flex justify-between items-center py-0.5 border-b border-black font-bold">
                              <span>Paid:</span>
                              <span className="font-black">৳{invoice.advance}/-</span>
                           </div>
-                          <div className="flex justify-between items-center py-1 px-2 bg-gray-100 font-black text-[16px] text-red-600 mt-1">
+                          <div className="flex justify-between items-center py-1 px-2 bg-white border border-black font-black text-[16px] mt-1">
                              <span>DUE:</span>
                              <span>৳{invoice.due}/-</span>
                           </div>
@@ -190,13 +189,13 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                     </div>
                  </div>
 
-                 {/* Redesigned Signature Section with 'Authority' label */}
+                 {/* Authority Sign Section */}
                  <div className="mt-10 flex justify-between items-end px-4 text-[13px] font-black uppercase tracking-wider">
                     <div className="text-center w-40 border-t-2 border-black pt-1">
                        Customer Sign
                     </div>
                     <div className="text-center w-48 relative">
-                       <div className="text-[14px] font-black italic tracking-tighter mb-0.5 text-primary">Authority</div>
+                       <div className="text-[14px] font-black italic tracking-tighter mb-0.5 text-black">Authority</div>
                        <div className="border-t-2 border-black pt-1">
                           Authorized Sign
                        </div>

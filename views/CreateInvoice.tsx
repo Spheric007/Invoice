@@ -286,9 +286,9 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                 <thead>
                   <tr className="bg-secondary text-[10px] uppercase font-black text-lightText tracking-widest text-left">
                     <th className="p-3 border">Description</th>
-                    {bannerMode && <th className="p-3 border w-20 text-center">Len</th>}
-                    {bannerMode && <th className="p-3 border w-20 text-center">Wid</th>}
-                    <th className="p-3 border w-16 text-center">Qty</th>
+                    {bannerMode && <th className="p-3 border w-24 text-center">Len</th>}
+                    {bannerMode && <th className="p-3 border w-24 text-center">Wid</th>}
+                    <th className="p-3 border w-24 text-center">Qty</th>
                     <th className="p-3 border w-24 text-center">Rate</th>
                     <th className="p-3 border w-32 text-right">Total</th>
                     <th className="p-3 border w-10"></th>
@@ -316,7 +316,14 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                       <td className="p-0 border">
                         <input type="number" className="w-full px-2 py-3 text-center outline-none font-bold" value={item.rate} onChange={(e) => handleItemChange(idx, 'rate', e.target.value)} />
                       </td>
-                      <td className="p-0 border text-right px-4 font-black bg-gray-50 text-indigo-700">৳{Number(item.total).toFixed(0)}</td>
+                      <td className="p-0 border">
+                        <input 
+                          type="number" 
+                          className="w-full px-4 py-3 text-right outline-none font-black bg-gray-50 text-indigo-700" 
+                          value={item.total} 
+                          onChange={(e) => handleItemChange(idx, 'total', e.target.value)} 
+                        />
+                      </td>
                       <td className="p-0 border text-center">
                         <button onClick={() => { const itms = [...formData.items!]; itms.splice(idx, 1); calculateTotals(itms, formData.advance!) }} className="text-danger hover:scale-125 transition-transform"><i className="fas fa-trash-alt text-xs"></i></button>
                       </td>
@@ -366,7 +373,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
         </div>
       </div>
 
-      {/* PRINT TEMPLATE - REFINED FOR A5 LANDSCAPE (HALF A4) */}
+      {/* PRINT TEMPLATE - GRAYSCALE / BLACK ONLY */}
       <div id="memo-print-template" className="hidden">
         <div ref={memoRef} className="memo-container bg-white text-black font-serif" style={{ width: '148mm', height: '210mm', padding: '5mm', position: 'relative' }}>
            <div className="w-full h-full border-2 border-black p-3 flex flex-col box-border">
@@ -378,7 +385,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                  </div>
               </div>
 
-              {/* Smaller shop name, one line, higher up */}
+              {/* Company Header - Standard Black */}
               <div className="text-center">
                  <h1 className="text-[21px] font-black uppercase tracking-tight leading-none mb-2">
                     MASTER COMPUTER & PRINTING PRESS
@@ -401,7 +408,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                  <div className="border-t-2 border-black mt-2 mb-4"></div>
               </div>
 
-              {/* Client Info Grid - All 14px, Tight Spacing */}
+              {/* Client Info Grid - All Black */}
               <div className="grid grid-cols-12 gap-y-2 mb-4 text-[14px] font-bold">
                  <div className="col-span-7 space-y-1">
                     <div className="flex items-end">
@@ -429,15 +436,15 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                  </div>
               </div>
 
-              {/* Table - Dynamic height to prevent overflow */}
+              {/* Table - Equal widths for Qty/Rate */}
               <div className="flex-grow">
                  <table className="w-full border-collapse border-2 border-black text-[14px]">
                     <thead>
-                       <tr className="border-b-2 border-black h-8 bg-gray-50">
+                       <tr className="border-b-2 border-black h-8 bg-white">
                           <th className="border-r-2 border-black w-10 text-center">SL</th>
                           <th className="border-r-2 border-black text-center">Work Description</th>
                           <th className="border-r-2 border-black w-24 text-center">Qty / Size</th>
-                          <th className="border-r-2 border-black w-20 text-center">Rate</th>
+                          <th className="border-r-2 border-black w-24 text-center">Rate</th>
                           <th className="w-24 text-center">Total (৳)</th>
                        </tr>
                     </thead>
@@ -447,9 +454,9 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                              <td className="border-r-2 border-black text-center">{i+1}</td>
                              <td className="border-r-2 border-black pl-3 font-bengali leading-none">{item.details}</td>
                              <td className="border-r-2 border-black text-center font-sans">
-                                {item.len && item.wid ? `${item.len}x${item.wid}` : item.qty}
+                                {item.len && item.wid ? `${item.len}x${item.wid}` : (item.qty || '')}
                              </td>
-                             <td className="border-r-2 border-black text-center">{item.rate}</td>
+                             <td className="border-r-2 border-black text-center">{item.rate || ''}</td>
                              <td className="text-right pr-3 font-sans">৳{item.total}/-</td>
                           </tr>
                        ))}
@@ -457,7 +464,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                  </table>
               </div>
 
-              {/* Summary and Signature at Bottom - Tight spacing */}
+              {/* Summary and Signature at Bottom - No Colors */}
               <div className="mt-4">
                  <div className="grid grid-cols-12 gap-4 items-start">
                     <div className="col-span-7">
@@ -470,15 +477,15 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                     </div>
                     <div className="col-span-5">
                        <div className="border-l-4 border-black pl-4 space-y-0.5 text-[14px]">
-                          <div className="flex justify-between items-center py-0.5 border-b border-gray-200 font-bold">
+                          <div className="flex justify-between items-center py-0.5 border-b border-black font-bold">
                              <span>Total:</span>
                              <span className="font-black">৳{(Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0)}/-</span>
                           </div>
-                          <div className="flex justify-between items-center py-0.5 border-b border-gray-200 font-bold text-green-700">
+                          <div className="flex justify-between items-center py-0.5 border-b border-black font-bold">
                              <span>Paid:</span>
                              <span className="font-black">৳{Number(formData.advance).toFixed(0)}/-</span>
                           </div>
-                          <div className="flex justify-between items-center py-1 px-2 bg-gray-100 font-black text-[16px] text-red-600 mt-1">
+                          <div className="flex justify-between items-center py-1 px-2 bg-white border border-black font-black text-[16px] mt-1">
                              <span>DUE:</span>
                              <span>৳{((Number(formData.due) || 0) + (includePreviousDue ? prevDueAmount : 0)).toFixed(0)}/-</span>
                           </div>
@@ -486,14 +493,13 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                     </div>
                  </div>
 
-                 {/* Signature Section - Label 'Authority' above the line */}
+                 {/* Signature Section - Black Only */}
                  <div className="mt-10 flex justify-between items-end px-4 text-[13px] font-black uppercase tracking-wider">
                     <div className="text-center w-40 border-t-2 border-black pt-1">
                        Customer Sign
                     </div>
                     <div className="text-center w-48 relative">
-                       {/* Required: 'Authority' above the sign line */}
-                       <div className="text-[14px] font-black italic tracking-tighter mb-0.5 text-primary">Authority</div>
+                       <div className="text-[14px] font-black italic tracking-tighter mb-0.5 text-black">Authority</div>
                        <div className="border-t-2 border-black pt-1">
                           Authorized Sign
                        </div>
