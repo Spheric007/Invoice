@@ -294,6 +294,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
 
       <div className="max-w-5xl mx-auto space-y-6 no-print px-4">
         
+        {/* Customer Info Section */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
           <h3 className="font-bold mb-6 text-black text-xl border-b pb-2 flex items-center uppercase tracking-tighter">
             <i className="fas fa-user-circle mr-2"></i> Customer Info
@@ -355,6 +356,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
           )}
         </div>
 
+        {/* Work Items Section */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-bold text-black text-xl border-b pb-2 flex items-center uppercase tracking-tighter"><i className="fas fa-list-ul mr-2"></i> Work Items</h3>
@@ -392,6 +394,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
           <button onClick={() => setFormData(p => ({ ...p, items: [...p.items!, { id: Date.now(), details: '', qty: 1, rate: 0, total: 0, len: '', wid: '' }] }))} className="mt-4 bg-black text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest"><i className="fas fa-plus mr-1"></i> Add row</button>
         </div>
 
+        {/* Payment Details Redesigned - Cleaner Style */}
         <div className="bg-white p-6 rounded-2xl border border-border shadow-sm space-y-4">
           <h3 className="font-bold text-black text-xl border-b pb-2 flex items-center uppercase tracking-tighter">
             <i className="fas fa-money-check-alt mr-2"></i> Payment Details
@@ -402,7 +405,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
               <label className="text-sm font-bold text-gray-600 mb-1 block">Subtotal (৳)</label>
               <input 
                 type="text" 
-                className="w-full px-4 py-3 rounded-lg border bg-gray-100 font-bold outline-none" 
+                className="w-full px-4 py-2.5 rounded-lg border bg-gray-50 font-bold outline-none" 
                 value={formData.grand_total?.toFixed(2)} 
                 readOnly 
               />
@@ -411,7 +414,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
               <label className="text-sm font-bold text-gray-600 mb-1 block">Advance Payment (৳)</label>
               <input 
                 type="number" 
-                className="w-full px-4 py-3 rounded-lg border outline-none font-bold focus:ring-2 focus:ring-black/5" 
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 outline-none font-bold focus:ring-2 focus:ring-black/5" 
                 value={formData.advance || ''} 
                 onChange={(e) => handleInputChange('advance', e.target.value)} 
                 placeholder="0.00" 
@@ -423,7 +426,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
             <label className="text-sm font-bold text-gray-600 mb-1 block">Due Amount (৳)</label>
             <input 
               type="text" 
-              className="w-full px-4 py-3 rounded-lg border bg-gray-100 font-bold outline-none" 
+              className="w-full px-4 py-2.5 rounded-lg border bg-gray-50 font-bold outline-none" 
               value={formData.due?.toFixed(2)} 
               readOnly 
             />
@@ -433,7 +436,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
             <label className="text-sm font-bold text-gray-600 mb-1 block">Amount in Words</label>
             <input 
               type="text" 
-              className="w-full px-4 py-3 rounded-lg border bg-gray-100 italic outline-none font-medium" 
+              className="w-full px-4 py-2.5 rounded-lg border bg-gray-50 italic outline-none font-medium" 
               value={formData.in_word} 
               readOnly 
             />
@@ -441,7 +444,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
 
           <div>
             <label className="text-sm font-bold text-gray-600 mb-1 block">Payment Status</label>
-            <div className={`w-full py-2.5 px-4 rounded-lg font-black uppercase text-xs tracking-widest border text-center ${formData.due! <= 0 && formData.grand_total! > 0 ? 'bg-green-50 text-green-600 border-green-200' : 'bg-red-50 text-red-600 border-red-100'}`}>
+            <div className={`w-full py-2 px-4 rounded-lg font-black uppercase text-[10px] tracking-widest border text-center ${formData.due! <= 0 && formData.grand_total! > 0 ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
               {formData.due! <= 0 && formData.grand_total! > 0 ? 'PAID' : 'UNPAID'}
             </div>
           </div>
@@ -462,18 +465,20 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
           )}
         </div>
 
+        {/* Action Buttons */}
         <div className="flex flex-col md:flex-row justify-end items-center gap-4 pt-4 pb-10">
-           <button onClick={handlePrint} className="w-full md:w-auto px-8 py-3.5 bg-gray-200 text-black rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-300 transition-all uppercase tracking-widest text-xs border border-gray-400">
-             <i className="fas fa-print"></i> Print Invoice
+           <button onClick={handlePrint} className="w-full md:w-auto px-10 py-4 bg-gray-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-all uppercase tracking-widest text-xs shadow-xl">
+             <i className="fas fa-print"></i> Print Memo
            </button>
-           <button onClick={saveInvoice} disabled={isSaving} className="w-full md:w-auto px-8 py-3.5 bg-[#4F46E5] text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all uppercase tracking-widest text-xs shadow-lg shadow-indigo-200">
-             <i className="fas fa-plus"></i> {isSaving ? 'Saving...' : (editInvoiceNo ? 'Update Invoice' : 'Create Invoice')}
+           <button onClick={saveInvoice} disabled={isSaving} className="w-full md:w-auto px-10 py-4 border-2 border-black text-black rounded-xl font-bold flex items-center justify-center gap-2 bg-white hover:bg-black hover:text-white transition-all uppercase tracking-widest text-xs">
+             <i className="fas fa-save"></i> {isSaving ? 'Processing...' : (editInvoiceNo ? 'Update & Close' : 'Save & Close')}
            </button>
         </div>
       </div>
 
+      {/* Print Template - Aligned to Right side of page */}
       <div id="memo-print-template" className="hidden">
-        <div ref={memoRef} className="memo-container bg-white text-black font-serif" style={{ width: '148mm', height: '210mm', padding: '5mm', position: 'relative' }}>
+        <div ref={memoRef} className="memo-container bg-white text-black font-serif" style={{ width: '148mm', height: '210mm', padding: '5mm', position: 'relative', marginLeft: 'auto' }}>
            <div className="w-full h-full border-2 border-black p-3 flex flex-col box-border">
               <div className="flex justify-center -mt-1 mb-3"><div className="border-2 border-black px-8 py-1.5 text-[14px] font-black uppercase tracking-[3px]">CASH MEMO</div></div>
               <div className="text-center">
