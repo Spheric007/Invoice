@@ -160,8 +160,8 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
   };
 
   const saveInvoice = async () => {
-    if (!formData.client_name) return alert("Customer name is required");
-    if (!formData.invoice_no) return alert("Invoice number is required");
+    if (!formData.client_name) return alert("Fill customer name first");
+    if (!formData.invoice_no) return alert("Invoice number is missing");
     
     setIsSaving(true);
     try {
@@ -185,7 +185,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       refresh();
       return true;
     } catch (err: any) {
-      alert("Failed to save: " + err.message);
+      alert("Save failed: " + err.message);
       return false;
     } finally {
       setIsSaving(false);
@@ -193,8 +193,6 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
   };
 
   const handlePrint = async () => {
-    if (!formData.client_name) return alert("Fill customer name first");
-    
     const isSaved = await saveInvoice();
     if (!isSaved) return;
 
@@ -205,7 +203,6 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       printRoot.innerHTML = '';
       const clone = memoContent.cloneNode(true) as HTMLElement;
       printRoot.appendChild(clone);
-      
       setTimeout(() => {
         window.print();
       }, 500);
@@ -222,15 +219,14 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 no-print">
-        <div className="lg:col-span-2 space-y-8">
-          {/* Form Content - Same as before */}
+        <div className="lg:col-span-2 space-y-6">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
-            <h3 className="font-bold mb-6 text-primary text-xl border-b pb-2 flex items-center">
+            <h3 className="font-bold mb-6 text-primary text-xl border-b pb-2 flex items-center uppercase tracking-tighter">
               <i className="fas fa-user-circle mr-2"></i> Memo Header
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="relative">
-                <label className="text-xs font-bold text-lightText uppercase mb-1.5 block">Customer Name*</label>
+                <label className="text-[10px] font-black text-lightText uppercase mb-1.5 block">Customer Name*</label>
                 <input 
                   type="text" 
                   className="w-full px-4 py-3 rounded-xl border font-bengali font-bold outline-none focus:ring-2 focus:ring-primary/20 bg-white"
@@ -250,102 +246,68 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                     ))}
                   </div>
                 )}
-                {prevDueAmount !== 0 && (
-                   <div className={`mt-2 text-xs font-black font-bengali px-3 py-1 rounded-lg inline-block ${prevDueAmount > 0 ? 'bg-danger/10 text-danger' : 'bg-success/10 text-success'}`}>
-                     {prevDueAmount > 0 ? `সাবেক মোট বকেয়া: ৳${prevDueAmount.toFixed(2)}/-` : `অ্যাডভান্স জমা: ৳${Math.abs(prevDueAmount).toFixed(2)}/-`}
-                   </div>
-                )}
               </div>
 
               <div>
-                <label className="text-xs font-bold text-lightText uppercase mb-1.5 block">Customer Address</label>
-                <input 
-                  type="text" 
-                  className="w-full px-4 py-3 rounded-xl border font-bengali outline-none focus:ring-2 focus:ring-primary/20 bg-white" 
-                  value={formData.client_address || ''} 
-                  onChange={(e) => handleInputChange('client_address', e.target.value)} 
-                  placeholder="Enter customer address" 
-                />
+                <label className="text-[10px] font-black text-lightText uppercase mb-1.5 block">Customer Address</label>
+                <input type="text" className="w-full px-4 py-3 rounded-xl border font-bengali outline-none focus:ring-2 focus:ring-primary/20 bg-white" value={formData.client_address || ''} onChange={(e) => handleInputChange('client_address', e.target.value)} placeholder="Enter address" />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-lightText uppercase mb-1.5 block">Mobile (Contact Number)</label>
-                <input 
-                  type="text" 
-                  className="w-full px-4 py-3 rounded-xl border outline-none focus:ring-2 focus:ring-primary/20 bg-white" 
-                  value={formData.client_mobile || ''} 
-                  onChange={(e) => handleInputChange('client_mobile', e.target.value)} 
-                  placeholder="e.g., 017xxxxxxxx" 
-                />
+                <label className="text-[10px] font-black text-lightText uppercase mb-1.5 block">Mobile Number</label>
+                <input type="text" className="w-full px-4 py-3 rounded-xl border outline-none focus:ring-2 focus:ring-primary/20 bg-white" value={formData.client_mobile || ''} onChange={(e) => handleInputChange('client_mobile', e.target.value)} placeholder="017xxxxxxxx" />
               </div>
 
-              <div className="hidden md:block"></div>
-
-              <div>
-                <label className="text-xs font-bold text-lightText uppercase mb-1.5 block">Serial No:</label>
-                <input 
-                  type="text" 
-                  className="w-full px-4 py-3 rounded-xl border bg-gray-100 font-black text-center" 
-                  value={formData.invoice_no} 
-                  readOnly 
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-lightText uppercase mb-1.5 block">Date</label>
-                <input 
-                  type="date" 
-                  className="w-full px-4 py-3 rounded-xl border font-bold outline-none focus:ring-2 focus:ring-primary/20 bg-white" 
-                  value={formData.memo_date} 
-                  onChange={(e) => handleInputChange('memo_date', e.target.value)} 
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                   <label className="text-[10px] font-black text-lightText uppercase mb-1.5 block">Memo Serial</label>
+                   <input type="text" className="w-full px-4 py-3 rounded-xl border bg-gray-100 font-black text-center" value={formData.invoice_no} readOnly />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black text-lightText uppercase mb-1.5 block">Memo Date</label>
+                  <input type="date" className="w-full px-4 py-3 rounded-xl border font-bold outline-none focus:ring-2 focus:ring-primary/20 bg-white" value={formData.memo_date} onChange={(e) => handleInputChange('memo_date', e.target.value)} />
+                </div>
               </div>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-bold text-primary text-xl border-b pb-2 flex items-center">
-                <i className="fas fa-list-ul mr-2"></i> Work Description
+              <h3 className="font-bold text-primary text-xl border-b pb-2 flex items-center uppercase tracking-tighter">
+                <i className="fas fa-list-ul mr-2"></i> Work Items
               </h3>
-              <div className="flex items-center gap-3 bg-secondary px-4 py-1.5 rounded-full">
-                <span className="text-[10px] font-black text-lightText uppercase tracking-widest">Banner Mode (Sq.Ft)</span>
-                <button 
-                  onClick={() => setBannerMode(!bannerMode)}
-                  className={`w-10 h-5 rounded-full relative transition-colors ${bannerMode ? 'bg-primary' : 'bg-gray-400'}`}
-                >
-                  <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${bannerMode ? 'left-5.5' : 'left-0.5'}`}></div>
-                </button>
-              </div>
+              <button onClick={() => setBannerMode(!bannerMode)} className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${bannerMode ? 'bg-primary text-white shadow-lg' : 'bg-gray-200 text-gray-500'}`}>
+                {bannerMode ? 'Banner Mode On (Sqft)' : 'Banner Mode Off'}
+              </button>
             </div>
             
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-secondary text-[10px] uppercase font-bold text-lightText tracking-widest">
-                    <th className="p-3 border">Description of Work</th>
-                    {bannerMode && <th className="p-3 border w-20">Len (Ft)</th>}
-                    {bannerMode && <th className="p-3 border w-20">Wid (Ft)</th>}
+                  <tr className="bg-secondary text-[10px] uppercase font-black text-lightText tracking-widest text-left">
+                    <th className="p-3 border">Description</th>
+                    {bannerMode && <th className="p-3 border w-20 text-center">Len</th>}
+                    {bannerMode && <th className="p-3 border w-20 text-center">Wid</th>}
                     <th className="p-3 border w-16 text-center">Qty</th>
                     <th className="p-3 border w-24 text-center">Rate</th>
                     <th className="p-3 border w-32 text-right">Total</th>
                     <th className="p-3 border w-10"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
+                <tbody className="divide-y divide-border">
                   {formData.items?.map((item, idx) => (
-                    <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                       <td className="p-0 border">
-                        <input className="w-full px-3 py-3 font-bengali font-bold outline-none" value={item.details} onChange={(e) => handleItemChange(idx, 'details', e.target.value)} placeholder="Item description" />
+                        <input className="w-full px-3 py-3 font-bengali font-bold outline-none bg-transparent" value={item.details} onChange={(e) => handleItemChange(idx, 'details', e.target.value)} placeholder="Work description" />
                       </td>
                       {bannerMode && (
                         <td className="p-0 border">
-                          <input type="number" className="w-full px-2 py-3 text-center outline-none bg-indigo-50/30" value={item.len || ''} onChange={(e) => handleItemChange(idx, 'len', e.target.value)} placeholder="0" />
+                          <input type="number" className="w-full px-2 py-3 text-center outline-none bg-indigo-50/20" value={item.len || ''} onChange={(e) => handleItemChange(idx, 'len', e.target.value)} placeholder="0" />
                         </td>
                       )}
                       {bannerMode && (
                         <td className="p-0 border">
-                          <input type="number" className="w-full px-2 py-3 text-center outline-none bg-indigo-50/30" value={item.wid || ''} onChange={(e) => handleItemChange(idx, 'wid', e.target.value)} placeholder="0" />
+                          <input type="number" className="w-full px-2 py-3 text-center outline-none bg-indigo-50/20" value={item.wid || ''} onChange={(e) => handleItemChange(idx, 'wid', e.target.value)} placeholder="0" />
                         </td>
                       )}
                       <td className="p-0 border">
@@ -356,7 +318,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                       </td>
                       <td className="p-0 border text-right px-4 font-black bg-gray-50 text-indigo-700">৳{Number(item.total).toFixed(0)}</td>
                       <td className="p-0 border text-center">
-                        <button onClick={() => { const itms = [...formData.items!]; itms.splice(idx, 1); calculateTotals(itms, formData.advance!) }} className="text-white bg-danger w-6 h-6 rounded flex items-center justify-center hover:scale-110 transition-transform mx-auto"><i className="fas fa-minus text-[10px]"></i></button>
+                        <button onClick={() => { const itms = [...formData.items!]; itms.splice(idx, 1); calculateTotals(itms, formData.advance!) }} className="text-danger hover:scale-125 transition-transform"><i className="fas fa-trash-alt text-xs"></i></button>
                       </td>
                     </tr>
                   ))}
@@ -365,191 +327,158 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
             </div>
             
             <div className="flex justify-end mt-4">
-              <button 
-                onClick={() => setFormData(p => ({ ...p, items: [...p.items!, { id: Date.now(), details: '', qty: 1, rate: 0, total: 0, len: '', wid: '' }] }))} 
-                className="bg-[#e8eaf6] text-primary px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-primary hover:text-white transition-all shadow-sm"
-              >
-                <i className="fas fa-plus"></i> Add item
+              <button onClick={() => setFormData(p => ({ ...p, items: [...p.items!, { id: Date.now(), details: '', qty: 1, rate: 0, total: 0, len: '', wid: '' }] }))} className="bg-primary/10 text-primary px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                <i className="fas fa-plus mr-1"></i> Add new row
               </button>
-            </div>
-          </div>
-
-          {/* Totals Section */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
-            <h3 className="font-bold mb-8 text-2xl flex items-center border-b pb-2">
-              <i className="fas fa-money-check-alt mr-3 text-primary"></i> Financials
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-xs font-black text-lightText uppercase mb-2 tracking-widest">Grand Subtotal (৳)</label>
-                  <input type="text" className="w-full px-5 py-4 rounded-xl border bg-gray-100 font-black text-2xl tracking-tighter" value={formData.grand_total?.toFixed(2)} readOnly />
-                </div>
-                <div>
-                  <label className="block text-xs font-black text-lightText uppercase mb-2 tracking-widest">Advance Paid (৳)</label>
-                  <input type="number" className="w-full px-5 py-4 rounded-xl border outline-none focus:ring-2 focus:ring-primary/20 font-black text-success text-2xl tracking-tighter" value={formData.advance || ''} onChange={(e) => handleInputChange('advance', e.target.value)} placeholder="0.00" />
-                </div>
-              </div>
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-xs font-black text-lightText uppercase mb-2 tracking-widest">Net Balance Due (৳)</label>
-                  <input type="text" className="w-full px-5 py-4 rounded-xl border bg-gray-50 font-black text-danger text-3xl tracking-tighter shadow-inner" value={formData.due?.toFixed(2)} readOnly />
-                </div>
-                <div>
-                  <label className="block text-xs font-black text-lightText uppercase mb-2 tracking-widest">Amount In Words</label>
-                  <input type="text" className="w-full px-4 py-4 rounded-xl border bg-gray-50 italic text-xs font-black font-bengali text-gray-700" value={formData.in_word} readOnly />
-                </div>
-              </div>
             </div>
           </div>
         </div>
 
-        <div className="lg:col-span-1 no-print">
-           <div className="bg-white p-8 rounded-2xl border border-border sticky top-24 shadow-md">
-              <h4 className="font-black mb-6 flex items-center gap-2 text-primary border-b pb-3 uppercase tracking-tighter text-lg">
-                <i className="fas fa-magic"></i> Memo Actions
+        <div className="lg:col-span-1 space-y-6 no-print">
+           <div className="bg-white p-6 rounded-2xl border border-border shadow-sm">
+              <h4 className="font-black mb-4 text-primary uppercase tracking-tighter border-b pb-2 flex items-center">
+                <i className="fas fa-receipt mr-2"></i> Financial Summary
               </h4>
               <div className="space-y-4">
-                 <button onClick={saveInvoice} disabled={isSaving} className="w-full py-5 bg-primary text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
-                    <i className="fas fa-save text-xl"></i> {editInvoiceNo ? 'Update Invoice' : 'Save Invoice'}
-                 </button>
-                 <button onClick={markAsFullyPaid} className="w-full py-4 bg-success/10 text-success border-2 border-success/30 rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-success hover:text-white transition-all">
-                    <i className="fas fa-check-double"></i> Mark as Paid
-                 </button>
+                 <div>
+                    <label className="text-[10px] font-black text-lightText uppercase mb-1 block">Total Amount</label>
+                    <input type="text" className="w-full px-4 py-3 rounded-xl border bg-gray-50 font-black text-xl" value={`৳${formData.grand_total?.toFixed(0)}`} readOnly />
+                 </div>
+                 <div>
+                    <label className="text-[10px] font-black text-lightText uppercase mb-1 block">Advance Paid</label>
+                    <input type="number" className="w-full px-4 py-3 rounded-xl border font-black text-xl text-success outline-none focus:ring-2 focus:ring-success/20" value={formData.advance || ''} onChange={(e) => handleInputChange('advance', e.target.value)} placeholder="0" />
+                 </div>
+                 <div className="p-4 bg-danger/5 rounded-xl border border-danger/10">
+                    <label className="text-[10px] font-black text-danger uppercase mb-1 block">Total Due</label>
+                    <div className="text-3xl font-black text-danger tracking-tighter">৳{formData.due?.toFixed(0)}</div>
+                 </div>
               </div>
+           </div>
+           
+           <div className="sticky top-24 space-y-3">
+              <button onClick={handlePrint} className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest text-xs">
+                <i className="fas fa-print text-lg"></i> Print Memo
+              </button>
+              <button onClick={saveInvoice} disabled={isSaving} className="w-full py-4 bg-primary text-white rounded-2xl font-black flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest text-xs">
+                <i className="fas fa-save text-lg"></i> {isSaving ? 'Saving...' : 'Save & Close'}
+              </button>
            </div>
         </div>
       </div>
 
-      {/* STICKY BOTTOM BAR FOR PRINT */}
-      <div className="fixed bottom-0 left-0 md:left-[250px] right-0 bg-white/90 backdrop-blur-md border-t p-6 flex flex-wrap items-center justify-between no-print shadow-[0_-25px_60px_rgba(0,0,0,0.15)] z-[100] gap-4">
-        <div>
-           <button onClick={saveInvoice} disabled={isSaving} className="bg-primary text-white px-10 py-4.5 rounded-2xl font-black shadow-2xl shadow-primary/30 flex items-center gap-3 hover:scale-105 active:scale-95 transition-all text-lg">
-              <i className="fas fa-cloud-upload-alt text-xl"></i> Submit & Save
-           </button>
-        </div>
-        <div className="flex flex-wrap gap-4">
-           <button onClick={handlePrint} className="bg-white border-3 border-gray-900 text-gray-900 px-8 py-4.5 rounded-2xl font-black flex items-center gap-3 hover:bg-gray-900 hover:text-white active:scale-95 transition-all shadow-xl text-lg">
-              <i className="fas fa-print text-xl"></i> Print Memo
-           </button>
-        </div>
-      </div>
-
-      {/* PRINT TEMPLATE - EXACT REPLICA OF PROVIDED IMAGE */}
+      {/* PRINT TEMPLATE - REFINED FOR A5 LANDSCAPE (HALF A4) */}
       <div id="memo-print-template" className="hidden">
-        <div ref={memoRef} className="memo-container bg-white text-black font-serif" style={{ width: '148mm', height: '210mm', padding: '10mm', position: 'relative' }}>
-           <div className="w-full h-full border-2 border-black p-4 flex flex-col box-border">
+        <div ref={memoRef} className="memo-container bg-white text-black font-serif" style={{ width: '148mm', height: '210mm', padding: '5mm', position: 'relative' }}>
+           <div className="w-full h-full border-2 border-black p-3 flex flex-col box-border">
               
-              {/* Top Boxed Header */}
-              <div className="flex justify-center mb-6">
-                 <div className="border-2 border-black px-10 py-2 text-[14px] font-black uppercase tracking-[3px]">
+              {/* Higher Cash Memo Label */}
+              <div className="flex justify-center -mt-1 mb-3">
+                 <div className="border-2 border-black px-8 py-1.5 text-[14px] font-black uppercase tracking-[3px]">
                     CASH MEMO / ক্যাশ মেমো
                  </div>
               </div>
 
-              {/* Business Info */}
-              <div className="text-center mb-4">
-                 <h1 className="text-[28px] font-black uppercase tracking-tight leading-none mb-4">
+              {/* Smaller shop name, one line, higher up */}
+              <div className="text-center">
+                 <h1 className="text-[21px] font-black uppercase tracking-tight leading-none mb-2">
                     MASTER COMPUTER & PRINTING PRESS
                  </h1>
                  
-                 <div className="border-t-2 border-black mt-2 mb-2"></div>
+                 <div className="border-t-2 border-black mt-1 mb-1"></div>
 
-                 <div className="flex justify-between items-center px-2 py-1 font-bold text-[14px]">
-                    <div className="flex items-center">
-                       <span>Proprietor: S.M. Shahjahan</span>
-                    </div>
-                    <div className="bg-black text-white px-6 py-1 rounded-sm font-sans font-black tracking-widest">
+                 <div className="flex justify-between items-center px-1 py-0.5 font-bold text-[14px]">
+                    <span>Proprietor: S.M. Shahjahan</span>
+                    <div className="bg-black text-white px-5 py-0.5 rounded-sm font-sans font-black tracking-widest text-[14px]">
                        01720-365191
                     </div>
                  </div>
 
-                 <div className="flex justify-center mt-2">
-                    <div className="border-2 border-black px-8 py-1 text-[11px] font-bold">
+                 <div className="flex justify-center mt-1">
+                    <div className="border-2 border-black px-6 py-0.5 text-[12px] font-bold">
                        Primary association Market, Sakhipur, Tangail
                     </div>
                  </div>
-                 <div className="border-t-2 border-black mt-4 mb-6"></div>
+                 <div className="border-t-2 border-black mt-2 mb-4"></div>
               </div>
 
-              {/* Client Info Grid */}
-              <div className="grid grid-cols-12 gap-y-4 mb-6 text-[15px] font-bold">
-                 <div className="col-span-7 space-y-3">
+              {/* Client Info Grid - All 14px, Tight Spacing */}
+              <div className="grid grid-cols-12 gap-y-2 mb-4 text-[14px] font-bold">
+                 <div className="col-span-7 space-y-1">
                     <div className="flex items-end">
-                       <span className="w-20">Serial:</span>
-                       <span className="border-b border-black flex-1 pl-4 pb-0.5 font-black">#{formData.invoice_no}</span>
+                       <span className="w-16">Serial:</span>
+                       <span className="border-b border-black flex-1 pl-2 pb-0 font-black">#{formData.invoice_no}</span>
                     </div>
                     <div className="flex items-end font-bengali">
-                       <span className="w-20">Name:</span>
-                       <span className="border-b border-black flex-1 pl-4 pb-0.5 font-black">{formData.client_name}</span>
+                       <span className="w-16">Name:</span>
+                       <span className="border-b border-black flex-1 pl-2 pb-0 font-black">{formData.client_name}</span>
                     </div>
                     <div className="flex items-end font-bengali">
-                       <span className="w-20">Address:</span>
-                       <span className="border-b border-black flex-1 pl-4 pb-0.5">{formData.client_address || '...'}</span>
+                       <span className="w-16">Address:</span>
+                       <span className="border-b border-black flex-1 pl-2 pb-0 font-medium">{formData.client_address || '...'}</span>
                     </div>
                  </div>
-                 <div className="col-span-5 space-y-3">
+                 <div className="col-span-5 space-y-1">
                     <div className="flex items-end justify-end">
-                       <span className="mr-4">Date:</span>
-                       <span className="border-b border-black flex-1 text-center pb-0.5 font-black">{new Date(formData.memo_date || '').toLocaleDateString('en-GB')}</span>
+                       <span className="mr-3">Date:</span>
+                       <span className="border-b border-black flex-1 text-center pb-0 font-black">{new Date(formData.memo_date || '').toLocaleDateString('en-GB')}</span>
                     </div>
                     <div className="flex items-end justify-end font-sans">
-                       <span className="mr-4">Mobile:</span>
-                       <span className="border-b border-black flex-1 text-center pb-0.5 font-black">{formData.client_mobile || '...'}</span>
+                       <span className="mr-3">Mobile:</span>
+                       <span className="border-b border-black flex-1 text-center pb-0 font-black">{formData.client_mobile || '...'}</span>
                     </div>
                  </div>
               </div>
 
-              {/* Table with Dynamic Rows */}
+              {/* Table - Dynamic height to prevent overflow */}
               <div className="flex-grow">
-                 <table className="w-full border-collapse border-2 border-black text-[15px]">
+                 <table className="w-full border-collapse border-2 border-black text-[14px]">
                     <thead>
-                       <tr className="border-b-2 border-black h-12">
-                          <th className="border-r-2 border-black w-12 text-center">SL</th>
+                       <tr className="border-b-2 border-black h-8 bg-gray-50">
+                          <th className="border-r-2 border-black w-10 text-center">SL</th>
                           <th className="border-r-2 border-black text-center">Work Description</th>
-                          <th className="border-r-2 border-black w-32 text-center">Qty / Size</th>
-                          <th className="border-r-2 border-black w-24 text-center">Rate</th>
-                          <th className="w-28 text-center">Total (৳)</th>
+                          <th className="border-r-2 border-black w-24 text-center">Qty / Size</th>
+                          <th className="border-r-2 border-black w-20 text-center">Rate</th>
+                          <th className="w-24 text-center">Total (৳)</th>
                        </tr>
                     </thead>
                     <tbody className="font-black">
                        {formData.items?.map((item, i) => (
-                          <tr key={item.id} className="border-b-2 border-black h-11 align-middle">
+                          <tr key={item.id} className="border-b border-black h-8 align-middle">
                              <td className="border-r-2 border-black text-center">{i+1}</td>
-                             <td className="border-r-2 border-black pl-4 font-bengali">{item.details}</td>
+                             <td className="border-r-2 border-black pl-3 font-bengali leading-none">{item.details}</td>
                              <td className="border-r-2 border-black text-center font-sans">
                                 {item.len && item.wid ? `${item.len}x${item.wid}` : item.qty}
                              </td>
                              <td className="border-r-2 border-black text-center">{item.rate}</td>
-                             <td className="text-right pr-4">৳{item.total}/-</td>
+                             <td className="text-right pr-3 font-sans">৳{item.total}/-</td>
                           </tr>
                        ))}
                     </tbody>
                  </table>
               </div>
 
-              {/* Summary and Signature at Bottom */}
-              <div className="mt-8">
-                 <div className="grid grid-cols-12 gap-6 items-start">
+              {/* Summary and Signature at Bottom - Tight spacing */}
+              <div className="mt-4">
+                 <div className="grid grid-cols-12 gap-4 items-start">
                     <div className="col-span-7">
-                       <div className="border-2 border-black p-4 h-24 flex flex-col justify-between">
-                          <div className="text-[10px] uppercase font-black text-gray-500 mb-2">IN WORDS / কথায়:</div>
-                          <div className="italic text-[16px] font-black font-bengali leading-snug">
+                       <div className="border-2 border-black p-2 h-16 flex flex-col justify-between">
+                          <div className="text-[10px] uppercase font-black text-gray-500 mb-1">কথায় / IN WORDS:</div>
+                          <div className="italic text-[14px] font-black font-bengali leading-tight truncate">
                              {convertToWords((Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0))}
                           </div>
                        </div>
                     </div>
                     <div className="col-span-5">
-                       <div className="border-l-4 border-black pl-6 space-y-2">
-                          <div className="flex justify-between items-center py-1 border-b border-gray-200 font-bold text-[16px]">
+                       <div className="border-l-4 border-black pl-4 space-y-0.5 text-[14px]">
+                          <div className="flex justify-between items-center py-0.5 border-b border-gray-200 font-bold">
                              <span>Total:</span>
-                             <span className="font-black text-[18px]">৳{(Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0)}/-</span>
+                             <span className="font-black">৳{(Number(formData.grand_total) || 0) + (includePreviousDue ? prevDueAmount : 0)}/-</span>
                           </div>
-                          <div className="flex justify-between items-center py-1 border-b border-gray-200 font-bold text-[16px] text-green-700">
+                          <div className="flex justify-between items-center py-0.5 border-b border-gray-200 font-bold text-green-700">
                              <span>Paid:</span>
-                             <span className="font-black text-[18px]">৳{Number(formData.advance).toFixed(0)}/-</span>
+                             <span className="font-black">৳{Number(formData.advance).toFixed(0)}/-</span>
                           </div>
-                          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 font-black text-[22px] text-red-600 mt-2">
+                          <div className="flex justify-between items-center py-1 px-2 bg-gray-100 font-black text-[16px] text-red-600 mt-1">
                              <span>DUE:</span>
                              <span>৳{((Number(formData.due) || 0) + (includePreviousDue ? prevDueAmount : 0)).toFixed(0)}/-</span>
                           </div>
@@ -557,18 +486,16 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                     </div>
                  </div>
 
-                 {/* Signature Section fixed at bottom of content */}
-                 <div className="mt-16 flex justify-between items-end px-4 text-[13px] font-black uppercase tracking-[1px]">
-                    <div className="text-center w-48 border-t-2 border-black pt-2">
-                       CUSTOMER SIGN
+                 {/* Signature Section - Label 'Authority' above the line */}
+                 <div className="mt-10 flex justify-between items-end px-4 text-[13px] font-black uppercase tracking-wider">
+                    <div className="text-center w-40 border-t-2 border-black pt-1">
+                       Customer Sign
                     </div>
-                    <div className="text-center w-56 relative">
-                       {/* Company signature label above the line */}
-                       <div className="text-[18px] font-black italic tracking-tighter mb-1 text-primary animate-pulse" style={{ fontFamily: 'Georgia, serif' }}>
-                          MASTER COMPUTER
-                       </div>
-                       <div className="border-t-2 border-black pt-2">
-                          AUTHORIZED SIGN
+                    <div className="text-center w-48 relative">
+                       {/* Required: 'Authority' above the sign line */}
+                       <div className="text-[14px] font-black italic tracking-tighter mb-0.5 text-primary">Authority</div>
+                       <div className="border-t-2 border-black pt-1">
+                          Authorized Sign
                        </div>
                     </div>
                  </div>
