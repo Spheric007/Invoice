@@ -25,12 +25,15 @@ const App: React.FC = () => {
 
   // Auth Listener
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Fix: Access auth as any to ensure getSession and onAuthStateChange are available regardless of strict type checking
+    const auth = (supabase as any).auth;
+    
+    auth.getSession().then(({ data: { session } }: any) => {
       setSession(session);
       setAuthLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = auth.onAuthStateChange((_event: any, session: any) => {
       setSession(session);
     });
 
@@ -79,7 +82,8 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    // Fix: Access auth as any to call signOut
+    await (supabase.auth as any).signOut();
   };
 
   const renderView = () => {
