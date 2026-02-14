@@ -25,7 +25,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
     is_paid: false,
     is_walk_in: false,
     in_word: 'Zero Only.',
-    items: [{ id: Date.now(), details: '', qty: 1, rate: 0, total: 0, len: '', wid: '' }]
+    items: [{ id: Date.now(), details: '', qty: 0, rate: 0, total: 0, len: '', wid: '' }]
   });
 
   const [bannerMode, setBannerMode] = useState(false);
@@ -45,6 +45,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
     }
   }, [editInvoiceNo, initialItems, customerNameParam]);
 
+  // Fetch previous due amount whenever client name changes
   useEffect(() => {
     if (formData.client_name && formData.client_name.trim().length > 0) {
       const timer = setTimeout(() => fetchCustomerStats(formData.client_name!), 300);
@@ -58,14 +59,19 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
     try {
       const allInvoices = await db.getInvoices();
       const currentNo = formData.invoice_no;
+      
+      // Filter invoices for this specific customer excluding current invoice
       const filtered = allInvoices.filter(inv => 
         inv.client_name.toLowerCase().trim() === name.toLowerCase().trim() && 
         inv.invoice_no !== currentNo
       );
       
       const invoiceDue = filtered.reduce((sum, inv) => sum + (Number(inv.due) || 0), 0);
+      
+      // Also check manual transactions for this customer
       const trans = await db.getTransactions(name);
       const transBalance = trans.reduce((sum, t) => t.type === 'Due' ? sum + t.amount : sum - t.amount, 0);
+      
       setPrevDueAmount(invoiceDue + transBalance);
     } catch (e) {
       console.error("Stats fetch error:", e);
@@ -73,13 +79,13 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
   };
 
   const handleCustomerSelect = (name: string) => {
-    const cust = customers.find(c => c.name.toLowerCase() === name.toLowerCase());
+    const cust = customers.find(c => c.name.toLowerCase().trim() === name.toLowerCase().trim());
     if (cust) {
       setFormData(prev => ({ 
         ...prev, 
         client_name: cust.name, 
-        client_address: cust.address, 
-        client_mobile: cust.mobile 
+        client_address: cust.address || prev.client_address, 
+        client_mobile: cust.mobile || prev.client_mobile 
       }));
     } else {
       setFormData(prev => ({ ...prev, client_name: name }));
@@ -91,7 +97,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
     const itemsToLoad = items.map(item => ({
       id: Date.now() + Math.random(),
       details: item.details || '',
-      qty: item.qty || 1,
+      qty: item.qty || 0,
       rate: item.rate || 0,
       total: item.total || 0,
       len: item.len || '',
@@ -200,11 +206,12 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
 
   const saveInvoice = async () => {
     if (isSaving) return false;
-    if (!formData.client_name) return alert("Fill customer name first");
-    if (!formData.invoice_no) return alert("Invoice number is missing");
+    if (!formData.client_name) return alert("কাস্টমারের নাম লিখুন");
+    if (!formData.invoice_no) return alert("ইনভয়েস নম্বর পাওয়া যায়নি");
     
     setIsSaving(true);
     try {
+      // Auto-save customer if not a walk-in
       if (!formData.is_walk_in) {
         await db.saveCustomer({
           name: formData.client_name!.trim(),
@@ -225,7 +232,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
         is_paid: (Number(formData.due) || 0) <= 0,
         memo_date: formData.memo_date || new Date().toISOString().slice(0, 10),
         is_walk_in: formData.is_walk_in || false,
-        items: formData.items || [],
+        items: (formData.items || []).filter(item => item.details.trim() !== ''),
         in_word: formData.in_word || 'Zero Only.'
       };
       if (formData.id) invoiceToSave.id = formData.id;
@@ -234,7 +241,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       refresh();
       return true;
     } catch (err: any) {
-      alert("Save failed: " + err.message);
+      alert("সেভ করতে সমস্যা হয়েছে: " + err.message);
       setIsSaving(false);
       return false;
     }
@@ -300,6 +307,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                 value={formData.client_name || ''}
                 onChange={(e) => handleInputChange('client_name', e.target.value)}
                 placeholder="Enter customer name"
+                autoComplete="off"
               />
               {showSuggestions && suggestions.length > 0 && (
                 <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white shadow-2xl border border-border rounded-xl max-h-60 overflow-y-auto">
@@ -314,8 +322,8 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                 </div>
               )}
               {formData.client_name && prevDueAmount > 0 && (
-                <p className="mt-2 text-danger font-bold font-bengali text-[15px] animate-pulse">
-                  আগের মোট বকেয়া: ৳{prevDueAmount.toFixed(2)}
+                <p className="mt-2 text-danger font-bold font-bengali text-[15px] animate-pulse flex items-center">
+                  <i className="fas fa-exclamation-triangle mr-2"></i> আগের মোট বকেয়া: ৳{prevDueAmount.toLocaleString()}
                 </p>
               )}
             </div>
@@ -389,18 +397,18 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                 {formData.items?.map((item, idx) => (
                   <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                     <td className="p-0 border"><input className="w-full px-4 py-4 font-bengali font-bold outline-none bg-transparent" value={item.details} onChange={(e) => handleItemChange(idx, 'details', e.target.value)} placeholder="..." /></td>
-                    {bannerMode && <td className="p-0 border"><input type="number" onWheel={preventScroll} className="w-full px-2 py-4 text-center outline-none bg-gray-50 font-bold" value={item.len || ''} onChange={(e) => handleItemChange(idx, 'len', e.target.value)} /></td>}
-                    {bannerMode && <td className="p-0 border"><input type="number" onWheel={preventScroll} className="w-full px-2 py-4 text-center outline-none bg-gray-50 font-bold" value={item.wid || ''} onChange={(e) => handleItemChange(idx, 'wid', e.target.value)} /></td>}
-                    <td className="p-0 border"><input type="number" onWheel={preventScroll} className="w-full px-2 py-4 text-center outline-none font-bold" value={item.qty || ''} onChange={(e) => handleItemChange(idx, 'qty', e.target.value)} /></td>
-                    <td className="p-0 border"><input type="number" onWheel={preventScroll} className="w-full px-2 py-4 text-center outline-none font-bold" value={item.rate || ''} onChange={(e) => handleItemChange(idx, 'rate', e.target.value)} /></td>
-                    <td className="p-0 border"><input type="number" onWheel={preventScroll} className="w-full px-4 py-4 text-right outline-none font-black bg-gray-50 text-black text-lg" value={item.total || ''} onChange={(e) => handleItemChange(idx, 'total', e.target.value)} /></td>
+                    {bannerMode && <td className="p-0 border"><input type="number" onWheel={preventScroll} className="w-full px-2 py-4 text-center outline-none bg-gray-50 font-bold" value={item.len === 0 ? '' : item.len} onChange={(e) => handleItemChange(idx, 'len', e.target.value)} /></td>}
+                    {bannerMode && <td className="p-0 border"><input type="number" onWheel={preventScroll} className="w-full px-2 py-4 text-center outline-none bg-gray-50 font-bold" value={item.wid === 0 ? '' : item.wid} onChange={(e) => handleItemChange(idx, 'wid', e.target.value)} /></td>}
+                    <td className="p-0 border"><input type="number" onWheel={preventScroll} className="w-full px-2 py-4 text-center outline-none font-bold" value={item.qty === 0 ? '' : item.qty} onChange={(e) => handleItemChange(idx, 'qty', e.target.value)} /></td>
+                    <td className="p-0 border"><input type="number" onWheel={preventScroll} className="w-full px-2 py-4 text-center outline-none font-bold" value={item.rate === 0 ? '' : item.rate} onChange={(e) => handleItemChange(idx, 'rate', e.target.value)} /></td>
+                    <td className="p-0 border"><input type="number" onWheel={preventScroll} className="w-full px-4 py-4 text-right outline-none font-black bg-gray-50 text-black text-lg" value={item.total === 0 ? '' : item.total} onChange={(e) => handleItemChange(idx, 'total', e.target.value)} /></td>
                     <td className="p-0 border text-center"><button onClick={() => { const itms = [...formData.items!]; itms.splice(idx, 1); calculateTotals(itms, formData.advance!) }} className="text-gray-400 hover:text-black"><i className="fas fa-trash-alt text-xs"></i></button></td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <button onClick={() => setFormData(p => ({ ...p, items: [...p.items!, { id: Date.now(), details: '', qty: 1, rate: 0, total: 0, len: '', wid: '' }] }))} className="mt-4 bg-black text-white px-6 py-2.5 rounded-xl font-bold font-bengali uppercase text-xs tracking-widest shadow-md active:scale-95 transition-all"><i className="fas fa-plus mr-1"></i> রো যোগ করুন</button>
+          <button onClick={() => setFormData(p => ({ ...p, items: [...p.items!, { id: Date.now(), details: '', qty: 0, rate: 0, total: 0, len: '', wid: '' }] }))} className="mt-4 bg-black text-white px-6 py-2.5 rounded-xl font-bold font-bengali uppercase text-xs tracking-widest shadow-md active:scale-95 transition-all"><i className="fas fa-plus mr-1"></i> রো যোগ করুন</button>
         </div>
 
         {/* Payment Details */}
@@ -415,7 +423,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
               <input 
                 type="text" 
                 className="w-full px-4 py-2.5 rounded-lg border bg-gray-50 font-black outline-none" 
-                value={formData.grand_total?.toFixed(2)} 
+                value={formData.grand_total?.toFixed(0)} 
                 readOnly 
               />
             </div>
@@ -425,7 +433,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                 type="number" 
                 onWheel={preventScroll}
                 className="w-full px-4 py-2.5 rounded-lg border border-gray-300 outline-none font-black focus:ring-2 focus:ring-black/5" 
-                value={formData.advance || ''} 
+                value={formData.advance === 0 ? '' : formData.advance} 
                 onChange={(e) => handleInputChange('advance', e.target.value)} 
                 placeholder="0.00" 
               />
@@ -437,7 +445,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
             <input 
               type="text" 
               className="w-full px-4 py-2.5 rounded-lg border bg-gray-50 font-black outline-none text-danger" 
-              value={formData.due?.toFixed(2)} 
+              value={formData.due?.toFixed(0)} 
               readOnly 
             />
           </div>
@@ -475,7 +483,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
         </div>
       </div>
 
-      {/* Hidden Print Template Rebuilt for consistency with Refined View */}
+      {/* Hidden Print Template */}
       <div id="memo-print-template" className="hidden">
         <div ref={memoRef} className="memo-container bg-white text-black font-serif" style={{ width: '148mm', height: '210mm', padding: '10mm', position: 'relative', margin: '0' }}>
           <div className="w-full h-full border-[3px] border-black p-4 flex flex-col box-border bg-white font-serif">
