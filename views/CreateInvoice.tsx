@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Invoice, Customer, InvoiceItem, NavigationParams } from '../types';
 import { db } from '../services/db';
-import { convertToWords, formatDisplayDate } from '../utils/helpers';
+import { convertToWords } from '../utils/helpers';
 
 interface CreateInvoiceProps {
   customers: Customer[];
@@ -45,7 +45,6 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
     }
   }, [editInvoiceNo, initialItems, customerNameParam]);
 
-  // Fetch previous due amount whenever client name changes
   useEffect(() => {
     if (formData.client_name && formData.client_name.trim().length > 0) {
       const timer = setTimeout(() => fetchCustomerStats(formData.client_name!), 300);
@@ -59,19 +58,13 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
     try {
       const allInvoices = await db.getInvoices();
       const currentNo = formData.invoice_no;
-      
-      // Filter invoices for this specific customer excluding current invoice
       const filtered = allInvoices.filter(inv => 
         inv.client_name.toLowerCase().trim() === name.toLowerCase().trim() && 
         inv.invoice_no !== currentNo
       );
-      
       const invoiceDue = filtered.reduce((sum, inv) => sum + (Number(inv.due) || 0), 0);
-      
-      // Also check manual transactions for this customer
       const trans = await db.getTransactions(name);
       const transBalance = trans.reduce((sum, t) => t.type === 'Due' ? sum + t.amount : sum - t.amount, 0);
-      
       setPrevDueAmount(invoiceDue + transBalance);
     } catch (e) {
       console.error("Stats fetch error:", e);
@@ -211,7 +204,6 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
     
     setIsSaving(true);
     try {
-      // Auto-save customer if not a walk-in
       if (!formData.is_walk_in) {
         await db.saveCustomer({
           name: formData.client_name!.trim(),
@@ -547,11 +539,6 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                             <td className="text-right pr-3">৳{item.total}/-</td>
                           </tr>
                       ))}
-                      {Array.from({ length: Math.max(0, 10 - (formData.items?.length || 0)) }).map((_, idx) => (
-                         <tr key={`empty-${idx}`} className="border-b-[2px] border-black h-10">
-                           <td className="border-r-[2.5px] border-black"></td><td className="border-r-[2.5px] border-black"></td><td className="border-r-[2.5px] border-black"></td><td className="border-r-[2.5px] border-black"></td><td></td>
-                         </tr>
-                       ))}
                     </tbody>
                 </table>
               </div>
@@ -562,9 +549,15 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                        <span className="font-bengali font-black text-[15px] italic leading-tight">{formData.in_word}</span>
                     </div>
                     <div className="w-64 flex flex-col gap-1 text-[16px] font-black">
-                       <div className="flex justify-between border-b-[2px] border-black pb-1 mb-1"><span>Total:</span><span>৳{Number(formData.grand_total).toFixed(0)}/-</span></div>
-                       <div className="flex justify-between border-b-[2px] border-black pb-1 mb-1"><span>Paid:</span><span>৳{Number(formData.advance).toFixed(0)}/-</span></div>
-                       <div className="flex justify-between items-center bg-white border-[2.5px] border-black px-4 py-1.5 font-black text-[22px] mt-1 shadow-[3px_3px_0px_rgba(0,0,0,0.1)]"><span>DUE:</span><span>৳{Number(formData.due).toFixed(0)}/-</span></div>
+                       <div className="flex justify-between border-b-[2px] border-black pb-1 mb-1">
+                         <span>Total:</span><span>৳{Number(formData.grand_total).toFixed(0)}/-</span>
+                       </div>
+                       <div className="flex justify-between border-b-[2px] border-black pb-1 mb-1">
+                         <span>Paid:</span><span>৳{Number(formData.advance).toFixed(0)}/-</span>
+                       </div>
+                       <div className="flex justify-between items-center bg-white border-[2.5px] border-black px-4 py-1.5 font-black text-[22px] mt-1 shadow-[3px_3px_0px_rgba(0,0,0,0.1)]">
+                         <span>DUE:</span><span>৳{Number(formData.due).toFixed(0)}/-</span>
+                       </div>
                     </div>
                 </div>
                 <div className="mt-16 flex justify-between px-6">
