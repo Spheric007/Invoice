@@ -33,6 +33,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [prevDueAmount, setPrevDueAmount] = useState(0);
+  const [previousItems, setPreviousItems] = useState<{details: string, len: any, wid: any, qty: number, rate: number, total: number, date: string}[]>([]);
   const [includePreviousDue, setIncludePreviousDue] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentInput, setPaymentInput] = useState('');
@@ -75,6 +76,22 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       const trans = await db.getTransactions(name);
       const transBalance = trans.reduce((sum, t) => t.type === 'Due' ? sum + t.amount : sum - t.amount, 0);
       setPrevDueAmount(invoiceDue + transBalance);
+
+      // Fetch last 5 items from history
+      const historyItems: any[] = [];
+      const sortedInvoices = [...filtered].sort((a, b) => new Date(b.memo_date).getTime() - new Date(a.memo_date).getTime());
+      
+      for (const inv of sortedInvoices) {
+        if (historyItems.length >= 5) break;
+        for (const item of inv.items) {
+          if (historyItems.length >= 5) break;
+          historyItems.push({
+            ...item,
+            date: inv.memo_date
+          });
+        }
+      }
+      setPreviousItems(historyItems);
     } catch (e) {
       console.error("Stats fetch error:", e);
     }
@@ -93,6 +110,37 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       setFormData(prev => ({ ...prev, client_name: name }));
     }
     setShowSuggestions(false);
+  };
+
+  const addFromHistory = (item: any) => {
+    const newItem = {
+      id: Date.now() + Math.random(),
+      details: item.details,
+      qty: item.qty || 0,
+      rate: item.rate || 0,
+      total: item.total || 0,
+      len: item.len || '',
+      wid: item.wid || ''
+    };
+
+    setFormData(prev => {
+      const currentItems = [...(prev.items || [])];
+      // If the first item is empty, replace it
+      if (currentItems.length === 1 && !currentItems[0].details && currentItems[0].total === 0) {
+        currentItems[0] = newItem;
+      } else {
+        currentItems.push(newItem);
+      }
+      
+      const subtotal = currentItems.reduce((sum, it) => sum + (Number(it.total) || 0), 0);
+      return {
+        ...prev,
+        items: currentItems,
+        grand_total: subtotal,
+        due: subtotal - (Number(prev.advance) || 0),
+        in_word: convertToWords(subtotal)
+      };
+    });
   };
 
   const loadInitialItems = (items: Partial<InvoiceItem>[]) => {
@@ -394,6 +442,39 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
             </div>
           </div>
         </div>
+
+        {/* Previous Items History */}
+        {formData.client_name && previousItems.length > 0 && (
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-border animate-in fade-in slide-in-from-top-4 duration-500">
+            <h3 className="font-bold text-indigo-600 text-sm mb-4 flex items-center font-bengali uppercase tracking-tight">
+              <i className="fas fa-history mr-2"></i> কাজের বিবরণী (গত ৫টি আইটেম)
+            </h3>
+            <div className="space-y-3">
+              {previousItems.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/30 transition-all group">
+                  <div className="flex-1 grid grid-cols-12 gap-4 items-center">
+                    <div className="col-span-2 text-[11px] text-gray-400 font-medium">{new Date(item.date).toLocaleDateString('en-GB')}</div>
+                    <div className="col-span-4">
+                      <div className="font-bold text-gray-800 text-sm font-bengali">{item.details}</div>
+                      {(item.len || item.wid) && (
+                        <div className="text-[10px] text-gray-400">Size: {item.len}x{item.wid}</div>
+                      )}
+                    </div>
+                    <div className="col-span-2 text-center font-bold text-gray-600 text-sm">{item.qty}</div>
+                    <div className="col-span-4 text-right font-black text-gray-700 text-sm">৳{item.total.toFixed(2)}</div>
+                  </div>
+                  <button 
+                    onClick={() => addFromHistory(item)}
+                    className="ml-6 w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-sm active:scale-90"
+                    title="Add to current invoice"
+                  >
+                    <i className="fas fa-plus text-xs"></i>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Work Items Section */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-border">
