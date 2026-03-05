@@ -33,7 +33,16 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [prevDueAmount, setPrevDueAmount] = useState(0);
+  const [includePreviousDue, setIncludePreviousDue] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentInput, setPaymentInput] = useState('');
   const memoRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (showPaymentModal) {
+      setPaymentInput(formData.advance?.toString() || '');
+    }
+  }, [showPaymentModal, formData.advance]);
 
   useEffect(() => {
     if (editInvoiceNo) {
@@ -236,6 +245,44 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       alert("সেভ করতে সমস্যা হয়েছে: " + err.message);
       setIsSaving(false);
       return false;
+    }
+  };
+
+  const handleUpdatePaymentStatus = async (status: 'Paid' | 'Partial' | 'Unpaid') => {
+    const total = Number(formData.grand_total) || 0;
+    let newAdvance = Number(formData.advance) || 0;
+    
+    if (status === 'Paid') {
+      newAdvance = total;
+    } else if (status === 'Unpaid') {
+      newAdvance = 0;
+    } else if (status === 'Partial') {
+      // For partial, we use the value in the input field as the TOTAL advance paid
+      newAdvance = Number(paymentInput) || 0;
+    }
+
+    const newDue = Math.max(0, total - newAdvance);
+    const updatedData = {
+      ...formData,
+      advance: newAdvance,
+      due: newDue,
+      is_paid: newDue <= 0 && total > 0
+    };
+
+    setFormData(updatedData as Invoice);
+    setShowPaymentModal(false);
+    setPaymentInput('');
+    
+    if (editInvoiceNo) {
+      setIsSaving(true);
+      try {
+        await db.saveInvoice(updatedData as Invoice);
+        refresh();
+      } catch (e) {
+        alert("পেমেন্ট আপডেট সেভ করতে সমস্যা হয়েছে");
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
@@ -451,29 +498,117 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
               readOnly 
             />
           </div>
+
+          <div>
+            <label className="text-sm font-bold text-gray-600 mb-1 block font-bengali">Payment Status</label>
+            <div className={`w-full px-4 py-2 rounded-lg font-black text-center uppercase tracking-widest text-xs ${formData.is_paid ? 'bg-success/10 text-success border border-success/20' : 'bg-danger/10 text-danger border border-danger/20'}`}>
+              {formData.is_paid ? 'PAID' : 'UNPAID'}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 pt-2">
+            <input 
+              type="checkbox" 
+              id="include_prev_due"
+              className="w-4 h-4 rounded border-gray-300 accent-black cursor-pointer"
+              checked={includePreviousDue}
+              onChange={(e) => setIncludePreviousDue(e.target.checked)}
+            />
+            <label htmlFor="include_prev_due" className="text-sm text-danger font-bold cursor-pointer font-bengali">প্রিন্টে পূর্বের বকেয়া যোগ করুন (Include Previous Due in Print)</label>
+          </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col md:flex-row justify-end items-center gap-4 pt-4 pb-10">
-           <button 
-             onClick={handlePrint} 
-             disabled={isSaving}
-             className="w-full md:w-auto px-10 py-4 bg-gray-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-all uppercase tracking-widest text-xs shadow-xl disabled:opacity-50 active:scale-95 font-bengali"
-           >
-             <i className="fas fa-print"></i> {isSaving ? 'প্রসেসিং...' : 'প্রিন্ট মেমো'}
-           </button>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-4 pb-10">
            <button 
              onClick={async () => {
                const saved = await saveInvoice();
                if (saved) navigateTo(View.Invoices);
              }} 
              disabled={isSaving} 
-             className="w-full md:w-auto px-10 py-4 border-2 border-black text-black rounded-xl font-bold flex items-center justify-center gap-2 bg-white hover:bg-black hover:text-white transition-all uppercase tracking-widest text-xs disabled:opacity-50 active:scale-95 font-bengali"
+             className="w-full md:w-auto px-10 py-4 bg-indigo-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all uppercase tracking-widest text-xs shadow-xl disabled:opacity-50 active:scale-95 font-bengali"
            >
-             <i className="fas fa-save"></i> {isSaving ? 'সেভ হচ্ছে...' : (editInvoiceNo ? 'আপডেট করুন' : 'সেভ করুন')}
+             <i className="fas fa-save"></i> {isSaving ? 'সেভ হচ্ছে...' : (editInvoiceNo ? 'Update Invoice' : 'Save Invoice')}
            </button>
+
+           <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+             <button 
+               onClick={() => setShowPaymentModal(true)}
+               className="w-full md:w-auto px-8 py-4 bg-success text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all uppercase tracking-widest text-xs shadow-lg active:scale-95 font-bengali"
+             >
+               <i className="fas fa-check-circle"></i> Update Payment Status
+             </button>
+             <button 
+               onClick={handlePrint} 
+               disabled={isSaving}
+               className="w-full md:w-auto px-10 py-4 border border-gray-300 text-black rounded-xl font-bold flex items-center justify-center gap-2 bg-white hover:bg-gray-50 transition-all uppercase tracking-widest text-xs shadow-sm disabled:opacity-50 active:scale-95 font-bengali"
+             >
+               <i className="fas fa-print"></i> {isSaving ? 'প্রসেসিং...' : 'Print Invoice'}
+             </button>
+           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={() => setShowPaymentModal(false)}></div>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative z-10 animate-in zoom-in duration-200">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Update Payment Status</h3>
+            
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p className="text-xs font-medium text-slate-500 mb-1">Subtotal (৳)</p>
+                <p className="text-lg font-bold text-slate-700">{formData.grand_total?.toFixed(2)}</p>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p className="text-xs font-medium text-slate-500 mb-1">Due (৳)</p>
+                <p className="text-lg font-bold text-slate-700">{formData.due?.toFixed(2)}</p>
+              </div>
+            </div>
+            
+            <div className="mb-6">
+              <label className="text-xs font-medium text-slate-500 mb-2 block">Advance Payment (৳)</label>
+              <input 
+                type="number" 
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 outline-none font-medium transition-all"
+                placeholder="0.00"
+                value={paymentInput}
+                onChange={(e) => setPaymentInput(e.target.value)}
+                autoFocus
+              />
+            </div>
+            
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              <button 
+                onClick={() => handleUpdatePaymentStatus('Paid')}
+                className="px-2 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs transition-all shadow-sm active:scale-95"
+              >
+                Mark as Paid
+              </button>
+              <button 
+                onClick={() => handleUpdatePaymentStatus('Partial')}
+                className="px-2 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs transition-all shadow-sm active:scale-95"
+              >
+                Mark as Partial
+              </button>
+              <button 
+                onClick={() => handleUpdatePaymentStatus('Unpaid')}
+                className="px-2 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-xs transition-all shadow-sm active:scale-95"
+              >
+                Mark as Unpaid
+              </button>
+            </div>
+
+            <button 
+              onClick={() => setShowPaymentModal(false)}
+              className="text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Hidden Print Template */}
       <div id="memo-print-template" className="hidden">
@@ -552,11 +687,16 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                        <div className="flex justify-between border-b-[2px] border-black pb-1 mb-1">
                          <span>Total:</span><span>৳{Number(formData.grand_total).toFixed(0)}/-</span>
                        </div>
+                       {includePreviousDue && prevDueAmount > 0 && (
+                         <div className="flex justify-between border-b-[2px] border-black pb-1 mb-1 text-danger">
+                           <span>Prev. Due:</span><span>৳{prevDueAmount.toFixed(0)}/-</span>
+                         </div>
+                       )}
                        <div className="flex justify-between border-b-[2px] border-black pb-1 mb-1">
                          <span>Paid:</span><span>৳{Number(formData.advance).toFixed(0)}/-</span>
                        </div>
                        <div className="flex justify-between items-center bg-white border-[2.5px] border-black px-4 py-1.5 font-black text-[22px] mt-1 shadow-[3px_3px_0px_rgba(0,0,0,0.1)]">
-                         <span>DUE:</span><span>৳{Number(formData.due).toFixed(0)}/-</span>
+                         <span>DUE:</span><span>৳{(Number(formData.due) + (includePreviousDue ? prevDueAmount : 0)).toFixed(0)}/-</span>
                        </div>
                     </div>
                 </div>
