@@ -272,25 +272,9 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
     setFormData(updatedData as Invoice);
     setShowPaymentModal(false);
     setPaymentInput('');
-    
-    if (editInvoiceNo) {
-      setIsSaving(true);
-      try {
-        await db.saveInvoice(updatedData as Invoice);
-        refresh();
-      } catch (e) {
-        alert("পেমেন্ট আপডেট সেভ করতে সমস্যা হয়েছে");
-      } finally {
-        setIsSaving(false);
-      }
-    }
   };
 
   const handlePrint = async () => {
-    if (isSaving) return;
-    const isSaved = await saveInvoice();
-    if (!isSaved) return;
-
     const printRoot = document.getElementById('print-root');
     const memoContent = memoRef.current;
     
@@ -302,7 +286,6 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       printRoot.appendChild(clone);
       setTimeout(() => {
         window.print();
-        setIsSaving(false);
       }, 500);
     }
   };
@@ -520,16 +503,28 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
 
         {/* Action Buttons */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-4 pb-10">
-           <button 
-             onClick={async () => {
-               const saved = await saveInvoice();
-               if (saved) navigateTo(View.Invoices);
-             }} 
-             disabled={isSaving} 
-             className="w-full md:w-auto px-10 py-4 bg-indigo-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all uppercase tracking-widest text-xs shadow-xl disabled:opacity-50 active:scale-95 font-bengali"
-           >
-             <i className="fas fa-save"></i> {isSaving ? 'সেভ হচ্ছে...' : (editInvoiceNo ? 'Update Invoice' : 'Save Invoice')}
-           </button>
+           <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+             <button 
+               onClick={async () => {
+                 const saved = await saveInvoice();
+                 if (saved) alert("ইনভয়েস সফলভাবে সেভ হয়েছে!");
+               }} 
+               disabled={isSaving} 
+               className="w-full md:w-auto px-10 py-4 bg-indigo-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all uppercase tracking-widest text-xs shadow-xl disabled:opacity-50 active:scale-95 font-bengali"
+             >
+               <i className="fas fa-save"></i> {isSaving ? 'সেভ হচ্ছে...' : 'Save'}
+             </button>
+             <button 
+               onClick={async () => {
+                 const saved = await saveInvoice();
+                 if (saved) navigateTo(View.Invoices);
+               }} 
+               disabled={isSaving} 
+               className="w-full md:w-auto px-10 py-4 bg-black text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-800 transition-all uppercase tracking-widest text-xs shadow-xl disabled:opacity-50 active:scale-95 font-bengali"
+             >
+               <i className="fas fa-check-double"></i> {isSaving ? 'সেভ হচ্ছে...' : (editInvoiceNo ? 'Update & Close' : 'Save & Close')}
+             </button>
+           </div>
 
            <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
              <button 
@@ -543,7 +538,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                disabled={isSaving}
                className="w-full md:w-auto px-10 py-4 border border-gray-300 text-black rounded-xl font-bold flex items-center justify-center gap-2 bg-white hover:bg-gray-50 transition-all uppercase tracking-widest text-xs shadow-sm disabled:opacity-50 active:scale-95 font-bengali"
              >
-               <i className="fas fa-print"></i> {isSaving ? 'প্রসেসিং...' : 'Print Invoice'}
+               <i className="fas fa-print"></i> Print Invoice
              </button>
            </div>
         </div>
