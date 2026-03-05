@@ -77,14 +77,14 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
       const transBalance = trans.reduce((sum, t) => t.type === 'Due' ? sum + t.amount : sum - t.amount, 0);
       setPrevDueAmount(invoiceDue + transBalance);
 
-      // Fetch last 5 items from history
+      // Fetch last 8 items from history
       const historyItems: any[] = [];
       const sortedInvoices = [...filtered].sort((a, b) => new Date(b.memo_date).getTime() - new Date(a.memo_date).getTime());
       
       for (const inv of sortedInvoices) {
-        if (historyItems.length >= 5) break;
+        if (historyItems.length >= 8) break;
         for (const item of inv.items) {
-          if (historyItems.length >= 5) break;
+          if (historyItems.length >= 8) break;
           historyItems.push({
             ...item,
             date: inv.memo_date
@@ -288,6 +288,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
 
       await db.saveInvoice(invoiceToSave);
       refresh();
+      setIsSaving(false);
       return true;
     } catch (err: any) {
       alert("সেভ করতে সমস্যা হয়েছে: " + err.message);
@@ -447,7 +448,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
         {formData.client_name && previousItems.length > 0 && (
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-border animate-in fade-in slide-in-from-top-4 duration-500">
             <h3 className="font-bold text-indigo-600 text-sm mb-4 flex items-center font-bengali uppercase tracking-tight">
-              <i className="fas fa-history mr-2"></i> কাজের বিবরণী (গত ৫টি আইটেম)
+              <i className="fas fa-history mr-2"></i> কাজের বিবরণী (গত ৮টি আইটেম)
             </h3>
             <div className="space-y-3">
               {previousItems.map((item, idx) => (
@@ -587,8 +588,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
            <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
              <button 
                onClick={async () => {
-                 const saved = await saveInvoice();
-                 if (saved) alert("ইনভয়েস সফলভাবে সেভ হয়েছে!");
+                 await saveInvoice();
                }} 
                disabled={isSaving} 
                className="w-full md:w-auto px-10 py-4 bg-indigo-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all uppercase tracking-widest text-xs shadow-xl disabled:opacity-50 active:scale-95 font-bengali"
