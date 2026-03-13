@@ -691,7 +691,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
         <div ref={memoRef} className="memo-container bg-white text-black font-serif" style={{ width: '148mm', height: '210mm', padding: '10mm', position: 'relative', margin: '0' }}>
           <div className="w-full h-full border-[3px] border-black p-4 flex flex-col box-border bg-white font-serif">
               <div className="flex justify-center mb-3">
-                 <div className="border-[2px] border-black px-12 py-1 text-[16px] font-black uppercase tracking-[2px]">CASH MEMO / ক্যাশ মেমো</div>
+                 <div className="border-[1.5px] border-black px-6 py-0 text-[11px] font-black uppercase tracking-[1px]">CASH MEMO / ক্যাশ মেমো</div>
               </div>
               <div className="text-center">
                 <h1 className="text-[18px] font-black uppercase tracking-tight leading-none mb-1 text-center w-full whitespace-nowrap">MASTER COMPUTER & PRINTING PRESS</h1>
@@ -737,22 +737,44 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                     <thead>
                       <tr className="border-b-[2px] border-black h-7">
                           <th className="border-r-[2px] border-black w-10 text-center font-black">SL</th>
-                          <th className="border-r-[2px] border-black text-center font-black">Work Description</th>
-                          <th className="border-r-[2px] border-black w-24 text-center font-black">Qty / Size</th>
+                          <th className="border-r-[2px] border-black text-center font-black">Description</th>
+                          {bannerMode ? (
+                            <>
+                              <th className="border-r-[2px] border-black w-20 text-center font-black">Size</th>
+                              <th className="border-r-[2px] border-black w-12 text-center font-black">Qty</th>
+                            </>
+                          ) : (
+                            <th className="border-r-[2px] border-black w-24 text-center font-black">Qty / Size</th>
+                          )}
                           <th className="border-r-[2px] border-black w-16 text-center font-black">Rate</th>
                           <th className="w-24 text-center font-black">Total (৳)</th>
                       </tr>
                     </thead>
                     <tbody className="font-black">
-                      {formData.items?.map((item, i) => (
+                      {formData.items?.map((item, i) => {
+                        const detailsLen = String(item.details).length;
+                        const detailsFontSize = detailsLen > 40 ? 'text-[9px]' : detailsLen > 30 ? 'text-[10px]' : detailsLen > 20 ? 'text-[11px]' : 'text-[13px]';
+                        
+                        const sizeStr = item.len && item.wid ? `${item.len}x${item.wid}` : '';
+                        const sizeFontSize = sizeStr.length > 10 ? 'text-[10px]' : 'text-[13px]';
+
+                        return (
                           <tr key={item.id} className="border-b-[1px] border-black h-6 align-middle">
                             <td className="border-r-[2px] border-black text-center">{i+1}</td>
-                            <td className="border-r-[2px] border-black pl-2 font-bengali leading-none py-0.5">{item.details}</td>
-                            <td className="border-r-[2px] border-black text-center">{item.len && item.wid ? `${item.len}x${item.wid}` : (item.qty || '')}</td>
+                            <td className={`border-r-[2px] border-black pl-2 font-bengali leading-none py-0.5 ${detailsFontSize}`}>{item.details}</td>
+                            {bannerMode ? (
+                              <>
+                                <td className={`border-r-[2px] border-black text-center ${sizeFontSize}`}>{sizeStr}</td>
+                                <td className="border-r-[2px] border-black text-center">{item.qty || ''}</td>
+                              </>
+                            ) : (
+                              <td className={`border-r-[2px] border-black text-center ${sizeFontSize}`}>{sizeStr || (item.qty || '')}</td>
+                            )}
                             <td className="border-r-[2px] border-black text-center">{item.rate || ''}</td>
                             <td className="text-right pr-2">৳{item.total}/-</td>
                           </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                 </table>
               </div>

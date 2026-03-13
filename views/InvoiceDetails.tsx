@@ -84,7 +84,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
            <div className="w-full h-full border-[3px] border-black p-4 flex flex-col box-border bg-white font-serif">
               
               <div className="flex justify-center mb-3">
-                 <div className="border-[2px] border-black px-12 py-1 text-[16px] font-black uppercase tracking-[2px]">
+                 <div className="border-[1.5px] border-black px-6 py-0 text-[11px] font-black uppercase tracking-[1px]">
                     CASH MEMO / ক্যাশ মেমো
                  </div>
               </div>
@@ -146,8 +146,15 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                     <thead>
                        <tr className="border-b-[2px] border-black h-7">
                           <th className="border-r-[2px] border-black w-10 text-center font-black">SL</th>
-                          <th className="border-r-[2px] border-black text-center font-black">Work Description</th>
-                          <th className="border-r-[2px] border-black w-24 text-center font-black">Qty / Size</th>
+                          <th className="border-r-[2px] border-black text-center font-black">Description</th>
+                          {invoice.items.some(item => (Number(item.len) || 0) > 0 && (Number(item.wid) || 0) > 0) ? (
+                             <>
+                                <th className="border-r-[2px] border-black w-20 text-center font-black">Size</th>
+                                <th className="border-r-[2px] border-black w-12 text-center font-black">Qty</th>
+                             </>
+                          ) : (
+                             <th className="border-r-[2px] border-black w-24 text-center font-black">Qty / Size</th>
+                          )}
                           <th className="border-r-[2px] border-black w-16 text-center font-black">Rate</th>
                           <th className="w-24 text-center font-black">Total (৳)</th>
                        </tr>
@@ -156,10 +163,17 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                        {invoice.items.map((item, i) => (
                           <tr key={i} className="border-b-[1px] border-black h-6 align-middle">
                              <td className="border-r-[2px] border-black text-center">{i+1}</td>
-                             <td className="border-r-[2px] border-black pl-2 font-bengali text-[13px] leading-none py-0.5">{item.details}</td>
-                             <td className="border-r-[2px] border-black text-center">
-                                {item.len && item.wid ? `${item.len}x${item.wid}` : (item.qty || '')}
-                             </td>
+                             <td className={`border-r-[2px] border-black pl-2 font-bengali leading-none py-0.5 ${String(item.details).length > 40 ? 'text-[9px]' : String(item.details).length > 30 ? 'text-[10px]' : String(item.details).length > 20 ? 'text-[11px]' : 'text-[13px]'}`}>{item.details}</td>
+                             {invoice.items.some(it => (Number(it.len) || 0) > 0 && (Number(it.wid) || 0) > 0) ? (
+                                <>
+                                   <td className={`border-r-[2px] border-black text-center ${String(item.len && item.wid ? `${item.len}x${item.wid}` : '').length > 10 ? 'text-[10px]' : 'text-[13px]'}`}>{item.len && item.wid ? `${item.len}x${item.wid}` : ''}</td>
+                                   <td className="border-r-[2px] border-black text-center">{item.qty || ''}</td>
+                                </>
+                             ) : (
+                                <td className={`border-r-[2px] border-black text-center ${String(item.len && item.wid ? `${item.len}x${item.wid}` : (item.qty || '')).length > 10 ? 'text-[10px]' : 'text-[13px]'}`}>
+                                   {item.len && item.wid ? `${item.len}x${item.wid}` : (item.qty || '')}
+                                </td>
+                             )}
                              <td className="border-r-[2px] border-black text-center">{item.rate || ''}</td>
                              <td className="text-right pr-2">৳{item.total}/-</td>
                           </tr>
