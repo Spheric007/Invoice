@@ -95,107 +95,108 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                  </h1>
                  <div className="w-full h-[2.5px] bg-black mb-1"></div>
                  
-                 <div className="flex justify-between items-center px-1 mb-2">
-                    <span className="text-[16px] font-black">Proprietor: S.M. Shahjahan</span>
-                    <div className="bg-black text-white px-8 py-1 font-sans font-black tracking-widest text-[17px]">
+                 <div className="flex justify-between items-center px-1 mb-1">
+                    <span className="text-[15px] font-black">Proprietor: S.M. Shahjahan</span>
+                    <div className="bg-black text-white px-6 py-0.5 font-sans font-black tracking-widest text-[16px]">
                        01720-365191
                     </div>
                  </div>
 
-                 <div className="flex justify-center mb-4">
-                    <div className="border-[2px] border-black px-8 py-1 text-[13px] font-black">
+                 <div className="flex justify-center mb-2">
+                    <div className="border-[2px] border-black px-6 py-0.5 text-[12px] font-black">
                        Primary association Market, Sakhipur, Tangail
                     </div>
                  </div>
-                 <div className="w-full h-[2px] bg-black mb-6"></div>
+                 <div className="w-full h-[2px] bg-black mb-2"></div>
               </div>
 
-              <div className="space-y-4 mb-6 text-[16px] font-black">
+              <div className="space-y-1 mb-2 text-[15px] font-black">
                 <div className="flex justify-between items-end">
                    <div className="flex flex-1 items-end">
                       <span className="mr-2 whitespace-nowrap">Serial:</span>
-                      <div className="flex-1 border-b-[2px] border-black pb-0 px-2 min-h-[22px]">#{invoice.invoice_no}</div>
+                      <div className="flex-1 border-b-[2px] border-black pb-0 px-2 min-h-[20px]">#{invoice.invoice_no}</div>
                    </div>
                    <div className="flex flex-1 items-end pl-10">
                       <span className="mr-2 whitespace-nowrap">Date:</span>
-                      <div className="flex-1 border-b-[2px] border-black text-center pb-0 px-2 min-h-[22px]">{formatDisplayDate(invoice.memo_date)}</div>
+                      <div className="flex-1 border-b-[2px] border-black text-center pb-0 px-2 min-h-[20px]">{formatDisplayDate(invoice.memo_date)}</div>
                    </div>
                 </div>
 
                 <div className="flex items-end">
                    <span className="mr-2 whitespace-nowrap">Name:</span>
-                   <div className="flex-1 border-b-[2px] border-black pb-0 px-2 font-bengali text-[18px] leading-tight min-h-[26px]">{invoice.client_name}</div>
+                   <div className="flex-1 border-b-[2px] border-black pb-0 px-2 font-bengali text-[17px] leading-tight min-h-[24px]">{invoice.client_name}</div>
                    <div className="flex items-end pl-4 w-[45%]">
                       <span className="mr-2 whitespace-nowrap">Mobile:</span>
-                      <div className="flex-1 border-b-[2px] border-black text-center pb-0 px-2 min-h-[22px] font-sans">{invoice.client_mobile || '...'}</div>
+                      <div className="flex-1 border-b-[2px] border-black text-center pb-0 px-2 min-h-[20px] font-sans">{invoice.client_mobile || '...'}</div>
                    </div>
                 </div>
 
                 <div className="flex items-end">
                    <span className="mr-2 whitespace-nowrap">Address:</span>
-                   <div className="flex-1 border-b-[2px] border-black pb-0 px-2 font-bengali min-h-[24px] leading-tight">{invoice.client_address || '...'}</div>
+                   <div className="flex-1 border-b-[2px] border-black pb-0 px-2 font-bengali min-h-[22px] leading-tight">{invoice.client_address || '...'}</div>
                 </div>
               </div>
+              <div className="w-full h-[2px] bg-black mb-2"></div>
 
-              <div className="flex-grow">
-                 <table className="w-full border-collapse border-[2.5px] border-black text-[16px]">
+              <div className="flex-grow overflow-hidden">
+                 <table className="w-full border-collapse border-[2.5px] border-black text-[15px]">
                     <thead>
-                       <tr className="border-b-[2.5px] border-black h-10">
-                          <th className="border-r-[2.5px] border-black w-14 text-center font-black">SL</th>
+                       <tr className="border-b-[2.5px] border-black h-8">
+                          <th className="border-r-[2.5px] border-black w-12 text-center font-black">SL</th>
                           <th className="border-r-[2.5px] border-black text-center font-black">Work Description</th>
-                          <th className="border-r-[2.5px] border-black w-32 text-center font-black">Qty / Size</th>
-                          <th className="border-r-[2.5px] border-black w-24 text-center font-black">Rate</th>
-                          <th className="w-32 text-center font-black">Total (৳)</th>
+                          <th className="border-r-[2.5px] border-black w-28 text-center font-black">Qty / Size</th>
+                          <th className="border-r-[2.5px] border-black w-20 text-center font-black">Rate</th>
+                          <th className="w-28 text-center font-black">Total (৳)</th>
                        </tr>
                     </thead>
                     <tbody className="font-black">
                        {invoice.items.map((item, i) => (
-                          <tr key={i} className="border-b-[2px] border-black h-10 align-middle">
+                          <tr key={i} className="border-b-[1.5px] border-black h-8 align-middle">
                              <td className="border-r-[2.5px] border-black text-center">{i+1}</td>
-                             <td className="border-r-[2.5px] border-black pl-4 font-bengali text-[16px] leading-none py-1">{item.details}</td>
+                             <td className="border-r-[2.5px] border-black pl-3 font-bengali text-[15px] leading-none py-0.5">{item.details}</td>
                              <td className="border-r-[2.5px] border-black text-center">
                                 {item.len && item.wid ? `${item.len}x${item.wid}` : (item.qty || '')}
                              </td>
                              <td className="border-r-[2.5px] border-black text-center">{item.rate || ''}</td>
-                             <td className="text-right pr-3">৳{item.total}/-</td>
+                             <td className="text-right pr-2">৳{item.total}/-</td>
                           </tr>
                        ))}
                     </tbody>
                  </table>
               </div>
 
-              <div className="mt-8">
-                 <div className="flex justify-between items-start gap-4">
-                    <div className="flex-1 border-[2.5px] border-black p-3 h-20 flex flex-col justify-start">
-                       <span className="text-[10px] font-black text-gray-500 mb-1 uppercase">In Words / কথায়:</span>
-                       <span className="font-bengali font-black text-[15px] italic leading-tight">{convertToWords(Number(invoice.grand_total))}</span>
+              <div className="mt-auto pt-2">
+                 <div className="flex justify-between items-end gap-3">
+                    <div className="flex-1 border-[2.5px] border-black p-2 min-h-[65px] flex flex-col justify-start">
+                       <span className="text-[9px] font-black text-gray-500 mb-0.5 uppercase">In Words / কথায়:</span>
+                       <span className="font-bengali font-black text-[13px] italic leading-tight">{convertToWords(Number(invoice.grand_total))}</span>
                     </div>
 
-                    <div className="w-64 flex flex-col gap-1 text-[16px] font-black">
-                       <div className="flex justify-between border-b-[2px] border-black pb-1 mb-1">
+                    <div className="w-52 flex flex-col gap-0.5 text-[14px] font-black">
+                       <div className="flex justify-between border-b-[1.5px] border-black pb-0.5">
                           <span>Total:</span>
                           <span>৳{Number(invoice.grand_total).toFixed(0)}/-</span>
                        </div>
-                       <div className="flex justify-between border-b-[2px] border-black pb-1 mb-1">
+                       <div className="flex justify-between border-b-[1.5px] border-black pb-0.5">
                           <span>Paid:</span>
                           <span>৳{Number(invoice.advance).toFixed(0)}/-</span>
                        </div>
-                       <div className="flex justify-between items-center bg-white border-[2.5px] border-black px-4 py-1.5 font-black text-[22px] mt-1 shadow-[3px_3px_0px_rgba(0,0,0,0.1)]">
+                       <div className="flex justify-between items-center bg-white border-[2.5px] border-black px-3 py-1 mt-0.5 font-black text-[18px]">
                           <span>DUE:</span>
                           <span>৳{Number(invoice.due).toFixed(0)}/-</span>
                        </div>
                     </div>
                  </div>
 
-                 <div className="mt-16 flex justify-between px-6">
-                    <div className="text-center w-56 pt-1 border-t-[2.5px] border-black font-black uppercase text-[12px] font-bengali tracking-wider">CUSTOMER SIGN</div>
-                    <div className="text-center w-64 flex flex-col items-center">
-                       <span className="font-black italic text-[16px] mb-1">AUTHORITY</span>
-                       <div className="w-full pt-1 border-t-[2.5px] border-black font-black uppercase text-[12px] font-bengali tracking-wider">AUTHORIZED SIGN</div>
+                 <div className="mt-8 flex justify-between px-4">
+                    <div className="text-center w-44 pt-1 border-t-[2px] border-black font-black uppercase text-[10px] font-bengali tracking-wider">CUSTOMER SIGN</div>
+                    <div className="text-center w-52 flex flex-col items-center">
+                       <span className="font-black italic text-[14px] mb-0.5">AUTHORITY</span>
+                       <div className="w-full pt-1 border-t-[2px] border-black font-black uppercase text-[10px] font-bengali tracking-wider">AUTHORIZED SIGN</div>
                     </div>
                  </div>
-                 <div className="mt-8 flex flex-col items-center">
-                    <p className="text-[10px] font-bold text-gray-600 italic">This is an electronically generated invoice.</p>
+                 <div className="mt-4 flex flex-col items-center">
+                    <p className="text-[8px] font-bold text-gray-600 italic">This is an electronically generated invoice.</p>
                  </div>
               </div>
 
