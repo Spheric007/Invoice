@@ -90,7 +90,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
               </div>
 
               <div className="text-center">
-                 <h1 className="text-[22px] font-black uppercase tracking-tight leading-none mb-1 whitespace-nowrap">
+                 <h1 className="text-[18px] font-black uppercase tracking-tight leading-none mb-1 text-center w-full whitespace-nowrap">
                     MASTER COMPUTER & PRINTING PRESS
                  </h1>
                  <div className="w-full h-[2px] bg-black mb-1"></div>
@@ -123,20 +123,21 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                 </div>
 
                 <div className="flex items-end">
-                   <span className="mr-2 whitespace-nowrap">Name:</span>
+                   <span className="w-16 shrink-0">Name:</span>
                    <div className="flex-1 border-b-[1.5px] border-black pb-0 px-2 font-bengali text-[16px] leading-tight min-h-[22px]">{invoice.client_name}</div>
                 </div>
 
                 <div className="flex items-end">
-                   <div className="flex flex-1 items-end">
-                      <span className="mr-2 whitespace-nowrap">Address:</span>
-                      <div className="flex-1 border-b-[1.5px] border-black pb-0 px-2 font-bengali min-h-[20px] leading-tight">{invoice.client_address || '...'}</div>
-                   </div>
-                   <div className="flex items-end pl-4 w-[40%]">
-                      <span className="mr-2 whitespace-nowrap">Mobile:</span>
-                      <div className="flex-1 border-b-[1.5px] border-black text-center pb-0 px-2 min-h-[18px] font-sans">{invoice.client_mobile || '...'}</div>
-                   </div>
+                   <span className="w-16 shrink-0">Address:</span>
+                   <div className="flex-1 border-b-[1.5px] border-black pb-0 px-2 font-bengali min-h-[20px] leading-tight">{invoice.client_address || '...'}</div>
                 </div>
+
+                {invoice.client_mobile && (
+                  <div className="flex items-end">
+                    <span className="w-16 shrink-0">Mobile:</span>
+                    <div className="flex-1 border-b-[1.5px] border-black text-center pb-0 px-2 min-h-[18px] font-sans">{invoice.client_mobile}</div>
+                  </div>
+                )}
               </div>
               <div className="w-full h-[1.5px] bg-black mb-1"></div>
 

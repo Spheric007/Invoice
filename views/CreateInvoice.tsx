@@ -694,7 +694,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                  <div className="border-[2px] border-black px-12 py-1 text-[16px] font-black uppercase tracking-[2px]">CASH MEMO / ক্যাশ মেমো</div>
               </div>
               <div className="text-center">
-                <h1 className="text-[22px] font-black uppercase tracking-tight leading-none mb-1 whitespace-nowrap">MASTER COMPUTER & PRINTING PRESS</h1>
+                <h1 className="text-[18px] font-black uppercase tracking-tight leading-none mb-1 text-center w-full whitespace-nowrap">MASTER COMPUTER & PRINTING PRESS</h1>
                 <div className="w-full h-[2px] bg-black mb-1"></div>
                 <div className="flex justify-between items-center px-1 mb-1">
                   <span className="text-[14px] font-black">Proprietor: S.M. Shahjahan</span>
@@ -717,19 +717,19 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                    </div>
                 </div>
                 <div className="flex items-end">
-                   <span className="mr-2">Name:</span>
+                   <span className="w-16 shrink-0">Name:</span>
                    <div className="flex-1 border-b-[1.5px] border-black font-bengali text-[16px] min-h-[22px] leading-tight">{formData.client_name}</div>
                 </div>
                 <div className="flex items-end">
-                   <div className="flex flex-1 items-end">
-                      <span className="mr-2">Address:</span>
-                      <div className="flex-1 border-b-[1.5px] border-black font-bengali min-h-[20px] leading-tight">{formData.client_address || '...'}</div>
-                   </div>
-                   <div className="flex items-end pl-4 w-[40%]">
-                      <span className="mr-2">Mobile:</span>
-                      <div className="flex-1 border-b-[1.5px] border-black text-center min-h-[18px]">{formData.client_mobile || '...'}</div>
-                   </div>
+                   <span className="w-16 shrink-0">Address:</span>
+                   <div className="flex-1 border-b-[1.5px] border-black font-bengali min-h-[20px] leading-tight">{formData.client_address || '...'}</div>
                 </div>
+                {formData.client_mobile && (
+                  <div className="flex items-end">
+                    <span className="w-16 shrink-0">Mobile:</span>
+                    <div className="flex-1 border-b-[1.5px] border-black min-h-[18px]">{formData.client_mobile}</div>
+                  </div>
+                )}
               </div>
               <div className="w-full h-[1.5px] bg-black mb-1"></div>
               <div className="flex-grow overflow-hidden">
