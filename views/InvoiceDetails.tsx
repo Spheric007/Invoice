@@ -135,7 +135,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                 {invoice.client_mobile && (
                   <div className="flex items-end">
                     <span className="w-16 shrink-0">Mobile:</span>
-                    <div className="flex-1 border-b-[1.5px] border-black text-center pb-0 px-2 min-h-[18px] font-sans">{invoice.client_mobile}</div>
+                    <div className="flex-1 border-b-[1.5px] border-black pb-0 px-2 min-h-[18px] font-sans">{invoice.client_mobile}</div>
                   </div>
                 )}
               </div>
