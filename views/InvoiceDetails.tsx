@@ -93,7 +93,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                  <h1 className="text-[18px] font-black uppercase tracking-tight leading-none mb-1 text-center w-full whitespace-nowrap">
                     MASTER COMPUTER & PRINTING PRESS
                  </h1>
-                 <div className="w-full h-[2px] bg-black mb-1"></div>
+                 <div className="w-full border-b-[2px] border-black mb-1"></div>
                  
                  <div className="flex justify-between items-center px-1 mb-1">
                     <span className="text-[14px] font-black">Proprietor: S.M. Shahjahan</span>
@@ -107,7 +107,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                        Primary association Market, Sakhipur, Tangail
                     </div>
                  </div>
-                 <div className="w-full h-[1.5px] bg-black mb-1"></div>
+                 <div className="w-full border-b-[1.5px] border-black mb-1"></div>
               </div>
 
               <div className="space-y-0.5 mb-1 text-[14px] font-black">
@@ -139,7 +139,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                   </div>
                 )}
               </div>
-              <div className="w-full h-[1.5px] bg-black mb-1"></div>
+              <div className="w-full border-b-[1.5px] border-black mb-1"></div>
 
               <div className="flex-grow overflow-hidden">
                  <table className="w-full border-collapse border-[2px] border-black text-[13px]">

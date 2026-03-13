@@ -695,7 +695,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
               </div>
               <div className="text-center">
                 <h1 className="text-[18px] font-black uppercase tracking-tight leading-none mb-1 text-center w-full whitespace-nowrap">MASTER COMPUTER & PRINTING PRESS</h1>
-                <div className="w-full h-[2px] bg-black mb-1"></div>
+                <div className="w-full border-b-[2px] border-black mb-1"></div>
                 <div className="flex justify-between items-center px-1 mb-1">
                   <span className="text-[14px] font-black">Proprietor: S.M. Shahjahan</span>
                   <div className="bg-black text-white px-4 py-0.5 font-sans font-black tracking-widest text-[14px]">01720-365191</div>
@@ -703,7 +703,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                 <div className="flex justify-center mb-1">
                   <div className="border-[1.5px] border-black px-4 py-0.5 text-[11px] font-black">Primary association Market, Sakhipur, Tangail</div>
                 </div>
-                <div className="w-full h-[1.5px] bg-black mb-1"></div>
+                <div className="w-full border-b-[1.5px] border-black mb-1"></div>
               </div>
               <div className="space-y-0.5 mb-1 text-[14px] font-black">
                 <div className="flex justify-between items-end">
@@ -731,7 +731,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                   </div>
                 )}
               </div>
-              <div className="w-full h-[1.5px] bg-black mb-1"></div>
+              <div className="w-full border-b-[1.5px] border-black mb-1"></div>
               <div className="flex-grow overflow-hidden">
                 <table className="w-full border-collapse border-[2px] border-black text-[13px]">
                     <thead>
