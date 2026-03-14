@@ -41,7 +41,7 @@ export function formatDisplayDate(dateString?: string): string {
   try {
     const dateObj = new Date(dateString);
     if (isNaN(dateObj.getTime())) return dateString;
-    return dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   } catch (e) {
     return dateString;
   }

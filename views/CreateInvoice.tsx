@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Invoice, Customer, InvoiceItem, NavigationParams } from '../types';
 import { db } from '../services/db';
-import { convertToWords } from '../utils/helpers';
+import { convertToWords, formatDisplayDate } from '../utils/helpers';
 
 interface CreateInvoiceProps {
   customers: Customer[];
@@ -454,7 +454,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
               {previousItems.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/30 transition-all group">
                   <div className="flex-1 grid grid-cols-12 gap-4 items-center">
-                    <div className="col-span-2 text-[11px] text-gray-400 font-medium">{new Date(item.date).toLocaleDateString('en-GB')}</div>
+                    <div className="col-span-2 text-[11px] text-gray-400 font-medium">{formatDisplayDate(item.date)}</div>
                     <div className="col-span-4">
                       <div className="font-bold text-gray-800 text-sm font-bengali">{item.details}</div>
                       {(item.len || item.wid) && (
@@ -713,7 +713,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
                    </div>
                    <div className="flex flex-1 items-end pl-8">
                       <span className="mr-2">Date:</span>
-                      <div className="flex-1 border-b-[1.5px] border-black text-center min-h-[18px]">{new Date(formData.memo_date || '').toLocaleDateString('en-GB')}</div>
+                      <div className="flex-1 border-b-[1.5px] border-black text-center min-h-[18px]">{formatDisplayDate(formData.memo_date)}</div>
                    </div>
                 </div>
                 <div className="flex items-end">
