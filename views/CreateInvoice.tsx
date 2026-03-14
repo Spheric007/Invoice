@@ -688,7 +688,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
 
       {/* Hidden Print Template */}
       <div id="memo-print-template" className="hidden">
-        <div ref={memoRef} className="memo-container bg-white text-black font-serif" style={{ width: '150mm', height: '212mm', padding: '10mm', position: 'relative', marginLeft: 'auto', marginRight: '0' }}>
+        <div ref={memoRef} className="memo-container bg-white text-black font-serif" style={{ width: '150mm', height: '214mm', padding: '10mm', position: 'relative', marginLeft: 'auto', marginRight: '0' }}>
           <div className="w-full h-full border-[3px] border-black p-4 flex flex-col box-border bg-white font-serif">
               <div className="flex justify-center mb-3">
                  <div className="border-[1.5px] border-black px-6 py-0 text-[11px] font-black uppercase tracking-[1px]">CASH MEMO / ক্যাশ মেমো</div>
