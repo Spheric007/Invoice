@@ -80,7 +80,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
       </div>
 
       <div className="flex justify-center bg-gray-200/50 p-6 rounded-2xl overflow-x-auto">
-        <div ref={memoRef} className="memo-container bg-white text-black font-serif" style={{ width: '140mm', height: '200mm', padding: '8mm', position: 'relative', marginLeft: 'auto', marginRight: '0' }}>
+        <div ref={memoRef} className="memo-container bg-white text-black font-serif" style={{ width: '148mm', height: '210mm', padding: '10mm', position: 'relative', marginLeft: 'auto', marginRight: '0' }}>
            <div className="w-full h-full border-[3px] border-black p-4 flex flex-col box-border bg-white font-serif">
               
               <div className="flex justify-center mb-3">
