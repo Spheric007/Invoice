@@ -69,7 +69,7 @@ const App: React.FC = () => {
     if (params?.invoiceNo) setSelectedInvoiceNo(params.invoiceNo);
     else if (view !== View.EditInvoice) setSelectedInvoiceNo(null);
 
-    if (params?.customerName) setSelectedCustomerName(params.customerName);
+    setSelectedCustomerName(params?.customerName || null);
     
     if (params?.initialItems) setInitialInvoiceItems(params.initialItems);
     else setInitialInvoiceItems(null);
@@ -91,7 +91,7 @@ const App: React.FC = () => {
       case View.Dashboard:
         return <Dashboard invoices={invoices} customers={customers} navigateTo={navigateTo} />;
       case View.Invoices:
-        return <InvoiceList invoices={invoices} navigateTo={navigateTo} refresh={fetchData} />;
+        return <InvoiceList invoices={invoices} navigateTo={navigateTo} refresh={fetchData} initialSearch={selectedCustomerName} />;
       case View.CreateInvoice:
         return <CreateInvoice customers={customers} navigateTo={navigateTo} refresh={fetchData} initialItems={initialInvoiceItems || []} customerNameParam={selectedCustomerName} />;
       case View.EditInvoice:

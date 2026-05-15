@@ -34,6 +34,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
   const [isSaving, setIsSaving] = useState(false);
   const [prevDueAmount, setPrevDueAmount] = useState(0);
   const [previousItems, setPreviousItems] = useState<{details: string, len: any, wid: any, qty: number, rate: number, total: number, date: string}[]>([]);
+  const [selectedHistoryItems, setSelectedHistoryItems] = useState<number[]>([]);
   const [includePreviousDue, setIncludePreviousDue] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentInput, setPaymentInput] = useState('');
@@ -113,23 +114,30 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
   };
 
   const addFromHistory = (item: any) => {
-    const newItem = {
-      id: Date.now() + Math.random(),
-      details: item.details,
-      qty: item.qty || 0,
-      rate: item.rate || 0,
-      total: item.total || 0,
-      len: item.len || '',
-      wid: item.wid || ''
-    };
+    addMultipleFromHistory([item]);
+  };
+
+  const addMultipleFromHistory = (items: any[]) => {
+    if (items.length === 0) return;
 
     setFormData(prev => {
-      const currentItems = [...(prev.items || [])];
-      // If the first item is empty, replace it
+      let currentItems = [...(prev.items || [])];
+      
+      const newItemsToAdd = items.map(item => ({
+        id: Date.now() + Math.random(),
+        details: item.details,
+        qty: item.qty || 0,
+        rate: item.rate || 0,
+        total: item.total || 0,
+        len: item.len || '',
+        wid: item.wid || ''
+      }));
+
+      // If the first item is empty, replace it or remove it if adding multiple
       if (currentItems.length === 1 && !currentItems[0].details && currentItems[0].total === 0) {
-        currentItems[0] = newItem;
+        currentItems = newItemsToAdd;
       } else {
-        currentItems.push(newItem);
+        currentItems = [...currentItems, ...newItemsToAdd];
       }
       
       const subtotal = currentItems.reduce((sum, it) => sum + (Number(it.total) || 0), 0);
@@ -141,6 +149,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
         in_word: convertToWords(subtotal)
       };
     });
+    setSelectedHistoryItems([]);
   };
 
   const loadInitialItems = (items: Partial<InvoiceItem>[]) => {
@@ -447,22 +456,58 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
         {/* Previous Items History */}
         {formData.client_name && previousItems.length > 0 && (
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-border animate-in fade-in slide-in-from-top-4 duration-500">
-            <h3 className="font-bold text-indigo-600 text-sm mb-4 flex items-center font-bengali uppercase tracking-tight">
-              <i className="fas fa-history mr-2"></i> কাজের বিবরণী (গত ৮টি আইটেম)
-            </h3>
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
+              <h3 className="font-bold text-indigo-600 text-sm flex items-center font-bengali uppercase tracking-tight">
+                <i className="fas fa-history mr-2"></i> কাজের বিবরণী (গত ৮টি আইটেম)
+              </h3>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    id="select_all_history"
+                    className="w-4 h-4 rounded border-gray-300 accent-indigo-600 cursor-pointer"
+                    checked={selectedHistoryItems.length === previousItems.length && previousItems.length > 0}
+                    onChange={(e) => {
+                      if (e.target.checked) setSelectedHistoryItems(previousItems.map((_, i) => i));
+                      else setSelectedHistoryItems([]);
+                    }}
+                  />
+                  <label htmlFor="select_all_history" className="text-xs text-gray-500 font-bold uppercase tracking-widest font-bengali cursor-pointer">সব সিলেক্ট করুন</label>
+                </div>
+                {selectedHistoryItems.length > 0 && (
+                  <button 
+                    onClick={() => addMultipleFromHistory(selectedHistoryItems.map(idx => previousItems[idx]))}
+                    className="bg-emerald-500 text-white px-4 py-1.5 rounded-lg font-bold text-[10px] shadow-md active:scale-95 transition-all flex items-center gap-2 font-bengali uppercase tracking-wider"
+                  >
+                    <i className="fas fa-plus"></i> যোগ করুন ({selectedHistoryItems.length})
+                  </button>
+                )}
+              </div>
+            </div>
             <div className="space-y-3">
               {previousItems.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/30 transition-all group">
-                  <div className="flex-1 grid grid-cols-12 gap-4 items-center">
-                    <div className="col-span-2 text-[11px] text-gray-400 font-medium">{formatDisplayDate(item.date)}</div>
-                    <div className="col-span-4">
-                      <div className="font-bold text-gray-800 text-sm font-bengali">{item.details}</div>
-                      {(item.len || item.wid) && (
-                        <div className="text-[10px] text-gray-400">Size: {item.len}x{item.wid}</div>
-                      )}
+                <div key={idx} className={`flex items-center justify-between p-3 rounded-xl border transition-all group ${selectedHistoryItems.includes(idx) ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/30'}`}>
+                  <div className="flex items-center gap-4 flex-1">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4 rounded border-gray-300 accent-indigo-600 cursor-pointer"
+                      checked={selectedHistoryItems.includes(idx)}
+                      onChange={(e) => {
+                        if (e.target.checked) setSelectedHistoryItems(prev => [...prev, idx]);
+                        else setSelectedHistoryItems(prev => prev.filter(i => i !== idx));
+                      }}
+                    />
+                    <div className="flex-1 grid grid-cols-12 gap-4 items-center">
+                      <div className="col-span-2 text-[11px] text-gray-400 font-medium">{formatDisplayDate(item.date)}</div>
+                      <div className="col-span-4">
+                        <div className="font-bold text-gray-800 text-sm font-bengali">{item.details}</div>
+                        {(item.len || item.wid) && (
+                          <div className="text-[10px] text-gray-400">Size: {item.len}x{item.wid}</div>
+                        )}
+                      </div>
+                      <div className="col-span-2 text-center font-bold text-gray-600 text-sm">{item.qty}</div>
+                      <div className="col-span-4 text-right font-black text-gray-700 text-sm">৳{item.total.toFixed(2)}</div>
                     </div>
-                    <div className="col-span-2 text-center font-bold text-gray-600 text-sm">{item.qty}</div>
-                    <div className="col-span-4 text-right font-black text-gray-700 text-sm">৳{item.total.toFixed(2)}</div>
                   </div>
                   <button 
                     onClick={() => addFromHistory(item)}

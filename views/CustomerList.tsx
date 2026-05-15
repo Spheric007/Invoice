@@ -105,7 +105,12 @@ const CustomerList: React.FC<CustomerListProps> = ({ customers, invoices, naviga
                   <tr key={cust.id || cust.name} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 font-bold text-primary cursor-pointer hover:underline font-bengali" onClick={() => navigateTo(View.CustomerDetails, { customerName: cust.name })}>{cust.name}</td>
                     <td className="px-6 py-4 text-center">
-                       <span className="bg-secondary px-3 py-1 rounded-full text-xs font-bold text-lightText">{stats.count} Bills</span>
+                       <button 
+                         onClick={() => navigateTo(View.Invoices, { customerName: cust.name })}
+                         className="bg-secondary px-3 py-1 rounded-full text-xs font-bold text-lightText hover:bg-primary hover:text-white transition-all cursor-pointer shadow-sm active:scale-95"
+                       >
+                         {stats.count} Bills
+                       </button>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm font-medium">{cust.mobile || 'N/A'}</div>

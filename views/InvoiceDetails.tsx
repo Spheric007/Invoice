@@ -42,19 +42,49 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
   const handleDownloadPNG = async () => {
     if (memoRef.current) {
       try {
+        // Create a temporary container for A4 layout download
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'fixed';
+        tempContainer.style.top = '-10000px';
+        tempContainer.style.left = '-10000px';
+        tempContainer.style.width = '210mm'; // A4 Width
+        tempContainer.style.height = '297mm'; // A4 Height
+        tempContainer.style.backgroundColor = '#ffffff';
+        tempContainer.style.display = 'flex';
+        tempContainer.style.flexDirection = 'column';
+        tempContainer.style.alignItems = 'center';
+        tempContainer.style.paddingTop = '20mm'; // Top margin on A4
+        tempContainer.style.boxSizing = 'border-box';
+        
+        const clone = memoRef.current.cloneNode(true) as HTMLElement;
+        clone.style.margin = '0';
+        clone.style.boxShadow = 'none';
+        clone.style.transform = 'scale(1.2)'; // Scale up slightly to look better on A4
+        clone.style.transformOrigin = 'top center';
+        
+        tempContainer.appendChild(clone);
+        document.body.appendChild(tempContainer);
+
         // @ts-ignore
-        const canvas = await html2canvas(memoRef.current, { 
-          scale: 4, 
+        const canvas = await html2canvas(tempContainer, { 
+          scale: 3, // High quality scale
           useCORS: true, 
           backgroundColor: "#ffffff",
           logging: false,
-          allowTaint: true
+          width: 794, // Approx A4 width in pixels at standard DPI (will be scaled)
+          height: 1123, // Approx A4 height in pixels at standard DPI
+          windowWidth: 794,
+          windowHeight: 1123
         });
+        
+        document.body.removeChild(tempContainer);
+        
         const link = document.createElement('a');
         link.download = `Invoice_${invoiceNo}.png`;
         link.href = canvas.toDataURL("image/png", 1.0);
         link.click();
       } catch (e) {
+        console.error(e);
         alert("Download failed.");
       }
     }
