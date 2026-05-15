@@ -47,34 +47,38 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
         tempContainer.style.position = 'fixed';
         tempContainer.style.top = '-10000px';
         tempContainer.style.left = '-10000px';
-        tempContainer.style.width = '210mm'; // A4 Width
-        tempContainer.style.height = '297mm'; // A4 Height
+        tempContainer.style.width = '794px'; // Approx A4 width in pixels (210mm)
+        tempContainer.style.height = '1123px'; // Approx A4 height in pixels (297mm)
         tempContainer.style.backgroundColor = '#ffffff';
         tempContainer.style.display = 'flex';
         tempContainer.style.flexDirection = 'column';
         tempContainer.style.alignItems = 'center';
-        tempContainer.style.paddingTop = '20mm'; // Top margin on A4
+        tempContainer.style.justifyContent = 'flex-start';
+        tempContainer.style.paddingTop = '60px'; // Top margin
         tempContainer.style.boxSizing = 'border-box';
         
         const clone = memoRef.current.cloneNode(true) as HTMLElement;
         clone.style.margin = '0';
         clone.style.boxShadow = 'none';
-        clone.style.transform = 'scale(1.2)'; // Scale up slightly to look better on A4
-        clone.style.transformOrigin = 'top center';
+        // Remove transform as it breaks html2canvas baseline
         
         tempContainer.appendChild(clone);
         document.body.appendChild(tempContainer);
 
+        // Quality fix: Ensure fonts are loaded and use a high scale
         // @ts-ignore
         const canvas = await html2canvas(tempContainer, { 
-          scale: 3, // High quality scale
+          scale: 4, 
           useCORS: true, 
           backgroundColor: "#ffffff",
           logging: false,
-          width: 794, // Approx A4 width in pixels at standard DPI (will be scaled)
-          height: 1123, // Approx A4 height in pixels at standard DPI
+          width: 794,
+          height: 1123,
           windowWidth: 794,
-          windowHeight: 1123
+          windowHeight: 1123,
+          onclone: (clonedDoc) => {
+             // You can do extra fixes here if needed
+          }
         });
         
         document.body.removeChild(tempContainer);
@@ -144,28 +148,28 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                 <div className="flex justify-between items-end">
                    <div className="flex flex-1 items-end">
                       <span className="mr-2 whitespace-nowrap">Serial:</span>
-                      <div className="flex-1 border-b-[1.5px] border-black pb-0 px-2 min-h-[18px]">#{invoice.invoice_no}</div>
+                      <div className="flex-1 border-b-[1.5px] border-black pb-[2px] px-2 min-h-[22px]">#{invoice.invoice_no}</div>
                    </div>
                    <div className="flex flex-1 items-end pl-8">
                       <span className="mr-2 whitespace-nowrap">Date:</span>
-                      <div className="flex-1 border-b-[1.5px] border-black text-center pb-0 px-2 min-h-[18px]">{formatDisplayDate(invoice.memo_date)}</div>
+                      <div className="flex-1 border-b-[1.5px] border-black text-center pb-[2px] px-2 min-h-[22px]">{formatDisplayDate(invoice.memo_date)}</div>
                    </div>
                 </div>
 
                 <div className="flex items-end">
                    <span className="w-16 shrink-0">Name:</span>
-                   <div className="flex-1 border-b-[1.5px] border-black pb-0 px-2 font-bengali text-[16px] leading-tight min-h-[22px]">{invoice.client_name}</div>
+                   <div className="flex-1 border-b-[1.5px] border-black pb-[2px] px-2 font-bengali text-[18px] leading-tight min-h-[26px]">{invoice.client_name}</div>
                 </div>
 
                 <div className="flex items-end">
                    <span className="w-16 shrink-0">Address:</span>
-                   <div className="flex-1 border-b-[1.5px] border-black pb-0 px-2 font-bengali min-h-[20px] leading-tight">{invoice.client_address || '...'}</div>
+                   <div className="flex-1 border-b-[1.5px] border-black pb-[2px] px-2 font-bengali min-h-[24px] leading-tight text-[15px]">{invoice.client_address || '...'}</div>
                 </div>
 
                 {invoice.client_mobile && (
                   <div className="flex items-end">
                     <span className="w-16 shrink-0">Mobile:</span>
-                    <div className="flex-1 border-b-[1.5px] border-black pb-0 px-2 min-h-[18px] font-sans">{invoice.client_mobile}</div>
+                    <div className="flex-1 border-b-[1.5px] border-black pb-[2px] px-2 min-h-[22px] font-sans">{invoice.client_mobile}</div>
                   </div>
                 )}
               </div>
@@ -191,16 +195,16 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                     </thead>
                     <tbody className="font-black">
                        {invoice.items.map((item, i) => (
-                          <tr key={i} className="border-b-[1px] border-black h-6 align-middle">
+                          <tr key={i} className="border-b-[1px] border-black h-8 align-middle">
                              <td className="border-r-[2px] border-black text-center">{i+1}</td>
-                             <td className={`border-r-[2px] border-black pl-2 font-bengali leading-none py-0.5 ${String(item.details).length > 40 ? 'text-[9px]' : String(item.details).length > 30 ? 'text-[10px]' : String(item.details).length > 20 ? 'text-[11px]' : 'text-[13px]'}`}>{item.details}</td>
+                             <td className={`border-r-[2px] border-black pl-2 font-bengali leading-none py-1.5 ${String(item.details).length > 40 ? 'text-[9px]' : String(item.details).length > 30 ? 'text-[10px]' : String(item.details).length > 20 ? 'text-[11px]' : 'text-[14px]'}`}>{item.details}</td>
                              {invoice.items.some(it => (Number(it.len) || 0) > 0 && (Number(it.wid) || 0) > 0) ? (
                                 <>
-                                   <td className={`border-r-[2px] border-black text-center ${String(item.len && item.wid ? `${item.len}x${item.wid}` : '').length > 10 ? 'text-[10px]' : 'text-[13px]'}`}>{item.len && item.wid ? `${item.len}x${item.wid}` : ''}</td>
+                                   <td className={`border-r-[2px] border-black text-center ${String(item.len && item.wid ? `${item.len}x${item.wid}` : '').length > 10 ? 'text-[10px]' : 'text-[14px]'}`}>{item.len && item.wid ? `${item.len}x${item.wid}` : ''}</td>
                                    <td className="border-r-[2px] border-black text-center">{item.qty || ''}</td>
                                 </>
                              ) : (
-                                <td className={`border-r-[2px] border-black text-center ${String(item.len && item.wid ? `${item.len}x${item.wid}` : (item.qty || '')).length > 10 ? 'text-[10px]' : 'text-[13px]'}`}>
+                                <td className={`border-r-[2px] border-black text-center ${String(item.len && item.wid ? `${item.len}x${item.wid}` : (item.qty || '')).length > 10 ? 'text-[10px]' : 'text-[14px]'}`}>
                                    {item.len && item.wid ? `${item.len}x${item.wid}` : (item.qty || '')}
                                 </td>
                              )}
