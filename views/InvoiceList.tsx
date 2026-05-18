@@ -59,8 +59,56 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, navigateTo, refresh
         </select>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="bg-white rounded-3xl shadow-sm border border-border overflow-hidden">
+        {/* Mobile View */}
+        <div className="md:hidden divide-y divide-border">
+          {filteredInvoices.map((inv) => (
+            <div key={inv.invoice_no} className="p-5 active:bg-gray-50 transition-colors">
+              <div className="flex justify-between items-start mb-3">
+                <div onClick={() => navigateTo(View.InvoiceView, { invoiceNo: inv.invoice_no })}>
+                  <div className="text-primary font-black text-sm mb-0.5">#{inv.invoice_no}</div>
+                  <h3 className="font-bold text-lg text-black font-bengali leading-tight">{inv.client_name}</h3>
+                  <div className="text-[10px] text-gray-400 font-bold mt-1">
+                    {formatDisplayDate(inv.memo_date)}
+                  </div>
+                </div>
+                <div className="text-right">
+                   <div className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase inline-block mb-2 ${inv.due <= 0 ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}>
+                    {inv.due <= 0 ? 'Fully Paid' : 'Balance Due'}
+                  </div>
+                  <div className="text-lg font-black text-black">৳{Number(inv.grand_total).toFixed(0)}</div>
+                  {inv.due > 0 && <div className="text-[10px] font-black text-danger">Due: ৳{Number(inv.due).toFixed(0)}</div>}
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => navigateTo(View.InvoiceView, { invoiceNo: inv.invoice_no })}
+                    className="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/5 px-4 py-2 rounded-lg"
+                  >
+                    View
+                  </button>
+                  <button 
+                    onClick={() => navigateTo(View.EditInvoice, { invoiceNo: inv.invoice_no })}
+                    className="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-4 py-2 rounded-lg"
+                  >
+                    Edit
+                  </button>
+                </div>
+                <button onClick={() => handleDelete(inv.invoice_no)} className="text-danger/40 hover:text-danger p-2">
+                  <i className="fas fa-trash-alt text-xs"></i>
+                </button>
+              </div>
+            </div>
+          ))}
+          {filteredInvoices.length === 0 && (
+            <div className="p-16 text-center text-gray-400 italic">No records found.</div>
+          )}
+        </div>
+
+        {/* Desktop View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full min-w-[850px]">
             <thead className="bg-[#f9fafb] text-left text-[10px] uppercase font-bold text-lightText tracking-widest border-b">
               <tr>
@@ -93,9 +141,6 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, navigateTo, refresh
                   </td>
                 </tr>
               ))}
-              {filteredInvoices.length === 0 && (
-                <tr><td colSpan={7} className="p-16 text-center text-lightText italic">No records found. Click 'Create Invoice' to start.</td></tr>
-              )}
             </tbody>
           </table>
         </div>

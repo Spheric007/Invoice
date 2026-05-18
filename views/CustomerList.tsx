@@ -86,9 +86,60 @@ const CustomerList: React.FC<CustomerListProps> = ({ customers, invoices, naviga
         />
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse min-w-[800px]">
+      <div className="bg-white rounded-3xl shadow-sm border border-border overflow-hidden">
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-border">
+          {filteredCustomers.map((cust) => {
+            const stats = customerStats.get(cust.name.toLowerCase().trim()) || { totalDue: 0, count: 0 };
+            return (
+              <div key={cust.id || cust.name} className="p-5 active:bg-gray-50 transition-colors">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1" onClick={() => navigateTo(View.CustomerDetails, { customerName: cust.name })}>
+                    <h3 className="font-black text-lg text-black font-bengali leading-tight">{cust.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[10px] bg-secondary px-2 py-0.5 rounded-full font-bold text-gray-500 uppercase tracking-tighter">
+                        {stats.count} Bills
+                      </span>
+                      {cust.mobile && <span className="text-[10px] text-gray-400 font-bold">{cust.mobile}</span>}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Total Due</div>
+                    <div className="text-lg font-black text-danger">৳{stats.totalDue.toFixed(0)}</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-3 border-t border-gray-50">
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => navigateTo(View.Invoices, { customerName: cust.name })}
+                      className="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/5 px-3 py-2 rounded-lg"
+                    >
+                      View Bills
+                    </button>
+                    <button 
+                      onClick={() => navigateTo(View.CreateInvoice, { customerName: cust.name })}
+                      className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg"
+                    >
+                      New Bill
+                    </button>
+                  </div>
+                  <div className="flex gap-4 items-center">
+                     <button onClick={() => navigateTo(View.CustomerDetails, { customerName: cust.name })} className="text-gray-400 p-2"><i className="fas fa-chevron-right text-sm"></i></button>
+                     <button onClick={() => handleDelete(cust)} className="text-danger/40 hover:text-danger p-2"><i className="fas fa-trash-alt text-xs"></i></button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {filteredCustomers.length === 0 && (
+            <div className="p-10 text-center text-gray-400 italic">No customers found.</div>
+          )}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full border-collapse">
             <thead>
               <tr className="bg-[#f9fafb] text-left">
                 <th className="px-6 py-4 text-xs font-bold text-lightText uppercase tracking-wider border-b border-border">Name</th>
