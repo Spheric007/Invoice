@@ -122,7 +122,13 @@ const App: React.FC = () => {
   return (
     <div className="flex min-h-screen bg-secondary relative overflow-hidden font-poppins">
       <div className="md:hidden fixed top-0 left-0 right-0 bg-white shadow-md z-40 flex items-center justify-between px-6 py-4 no-print">
-        <h2 className="text-xl font-black text-primary tracking-tighter uppercase">Invoice Pro</h2>
+        <div className="flex items-center gap-3">
+          <img src="https://i.postimg.cc/ZnBCH0FB/master-Comptrer.png" alt="Logo" className="h-10 w-10 object-contain rounded-lg" />
+          <div>
+            <h2 className="text-lg font-black text-primary tracking-tighter uppercase leading-none">Master Computer</h2>
+            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 opacity-70">Printing Press Mgmt</p>
+          </div>
+        </div>
         <button className="text-primary text-2xl" onClick={toggleSidebar}>
           <i className="fas fa-bars"></i>
         </button>
@@ -133,9 +139,12 @@ const App: React.FC = () => {
       )}
 
       <div id="sidebar" className={`fixed md:sticky top-0 h-screen w-[260px] bg-white border-r border-border z-50 flex flex-col shadow-xl md:shadow-none no-print transform md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="p-8 pb-6 border-b border-border">
-          <h2 className="text-2xl font-black text-black tracking-tighter uppercase">Master Computer</h2>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 opacity-70">Printing Press Mgmt</p>
+        <div className="p-6 pb-6 border-b border-border flex items-center gap-3">
+          <img src="https://i.postimg.cc/ZnBCH0FB/master-Comptrer.png" alt="Logo" className="h-12 w-12 object-contain rounded-xl shadow-sm" />
+          <div>
+            <h2 className="text-lg font-black text-black tracking-tighter uppercase leading-none">Master Computer</h2>
+            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1 opacity-70">Printing Press Mgmt</p>
+          </div>
         </div>
         <nav className="flex-1 p-5 overflow-y-auto">
           <ul className="space-y-3">
