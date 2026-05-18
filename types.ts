@@ -77,4 +77,5 @@ export interface NavigationParams {
   invoiceNo?: string;
   customerName?: string;
   initialItems?: Partial<InvoiceItem>[];
+  skipScrollTop?: boolean;
 }

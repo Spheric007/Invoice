@@ -103,7 +103,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
   return (
     <div className="animate-in fade-in duration-500 pb-20 no-print">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 px-4">
-        <button onClick={() => navigateTo(View.Invoices)} className="text-lightText hover:text-black transition-colors flex items-center font-bold font-bengali">
+        <button onClick={() => navigateTo(View.Invoices, { skipScrollTop: true })} className="text-lightText hover:text-black transition-colors flex items-center font-bold font-bengali">
           <i className="fas fa-arrow-left mr-2"></i> ইনভয়েস লিস্টে ফিরে যান
         </button>
         <div className="flex flex-wrap gap-2">

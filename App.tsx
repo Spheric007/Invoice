@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Invoice, Customer, NavigationParams, InvoiceItem } from './types';
 import { db } from './services/db';
 import { supabase } from './supabaseClient';
@@ -19,9 +19,17 @@ const App: React.FC = () => {
   const [selectedCustomerName, setSelectedCustomerName] = useState<string | null>(null);
   const [initialInvoiceItems, setInitialInvoiceItems] = useState<Partial<InvoiceItem>[] | null>(null);
 
+  // List States (Lifted to prevent reset on navigation)
+  const [invoiceSearch, setInvoiceSearch] = useState('');
+  const [invoiceFilter, setInvoiceFilter] = useState('all');
+  const [customerSearch, setCustomerSearch] = useState('');
+
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
+  const scrollPositions = useRef<Record<string, number>>({});
+
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Auth Listener
   useEffect(() => {
@@ -66,16 +74,40 @@ const App: React.FC = () => {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const navigateTo = (view: View, params?: NavigationParams) => {
+    // Save current scroll position
+    if (contentRef.current) {
+      const currentPos = contentRef.current.scrollTop;
+      scrollPositions.current[currentView] = currentPos;
+    }
+
     if (params?.invoiceNo) setSelectedInvoiceNo(params.invoiceNo);
     else if (view !== View.EditInvoice) setSelectedInvoiceNo(null);
 
-    setSelectedCustomerName(params?.customerName || null);
+    if (params?.customerName !== undefined) {
+      setSelectedCustomerName(params.customerName);
+      if (params.customerName) {
+        setInvoiceSearch(params.customerName);
+      }
+    }
     
     if (params?.initialItems) setInitialInvoiceItems(params.initialItems);
     else setInitialInvoiceItems(null);
 
     setCurrentView(view);
     setIsSidebarOpen(false);
+
+    // Scroll management
+    setTimeout(() => {
+      if (contentRef.current) {
+        const savedPos = scrollPositions.current[view];
+        if (params?.skipScrollTop && savedPos !== undefined) {
+          contentRef.current.scrollTo({ top: savedPos, behavior: 'auto' });
+        } else {
+          contentRef.current.scrollTo(0, 0);
+        }
+      }
+    }, 100);
+
     if (view === View.Dashboard || view === View.Invoices || view === View.Customers) {
       fetchData();
     }
@@ -91,7 +123,17 @@ const App: React.FC = () => {
       case View.Dashboard:
         return <Dashboard invoices={invoices} customers={customers} navigateTo={navigateTo} />;
       case View.Invoices:
-        return <InvoiceList invoices={invoices} navigateTo={navigateTo} refresh={fetchData} initialSearch={selectedCustomerName} />;
+        return (
+          <InvoiceList 
+            invoices={invoices} 
+            navigateTo={navigateTo} 
+            refresh={fetchData} 
+            searchTerm={invoiceSearch}
+            setSearchTerm={setInvoiceSearch}
+            statusFilter={invoiceFilter}
+            setStatusFilter={setInvoiceFilter}
+          />
+        );
       case View.CreateInvoice:
         return <CreateInvoice customers={customers} navigateTo={navigateTo} refresh={fetchData} initialItems={initialInvoiceItems || []} customerNameParam={selectedCustomerName} />;
       case View.EditInvoice:
@@ -99,7 +141,16 @@ const App: React.FC = () => {
       case View.InvoiceView:
         return <InvoiceDetails invoiceNo={selectedInvoiceNo} navigateTo={navigateTo} />;
       case View.Customers:
-        return <CustomerList customers={customers} invoices={invoices} navigateTo={navigateTo} refresh={fetchData} />;
+        return (
+          <CustomerList 
+            customers={customers} 
+            invoices={invoices} 
+            navigateTo={navigateTo} 
+            refresh={fetchData} 
+            searchTerm={customerSearch}
+            setSearchTerm={setCustomerSearch}
+          />
+        );
       case View.CustomerDetails:
         return <CustomerDetails customerName={selectedCustomerName} navigateTo={navigateTo} refresh={fetchData} />;
       default:
@@ -181,7 +232,7 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 px-4 py-8 md:p-10 pt-20 md:pt-10 overflow-y-auto h-screen relative bg-[#f8f9fc]">
+      <div ref={contentRef} className="flex-1 px-4 py-8 md:p-10 pt-20 md:pt-10 overflow-y-auto h-screen relative bg-[#f8f9fc]">
         {loading && (
            <div className="fixed inset-0 md:absolute bg-white/40 backdrop-blur-[2px] z-[100] flex items-center justify-center">
              <div className="flex flex-col items-center">

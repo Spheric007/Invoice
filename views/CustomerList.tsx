@@ -7,10 +7,18 @@ interface CustomerListProps {
   invoices: Invoice[];
   navigateTo: (view: View, params?: any) => void;
   refresh: () => void;
+  searchTerm: string;
+  setSearchTerm: (val: string) => void;
 }
 
-const CustomerList: React.FC<CustomerListProps> = ({ customers, invoices, navigateTo, refresh }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+const CustomerList: React.FC<CustomerListProps> = ({ 
+  customers, 
+  invoices, 
+  navigateTo, 
+  refresh, 
+  searchTerm, 
+  setSearchTerm 
+}) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newCustomer, setNewCustomer] = useState<Customer>({ name: '', address: '', mobile: '', opening_balance: 0 });
 

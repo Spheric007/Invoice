@@ -147,7 +147,7 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customerName, navigat
           <h1 className="text-4xl font-black text-black font-bengali tracking-tighter">{customerName}</h1>
           <p className="text-gray-500 mt-1 font-bold uppercase text-[10px] tracking-widest">Customer Profile & Financial Statement</p>
         </div>
-        <button onClick={() => navigateTo(View.Customers)} className="bg-white border-2 border-black px-5 py-2.5 rounded-xl font-bold flex items-center hover:bg-black hover:text-white transition-all">
+        <button onClick={() => navigateTo(View.Customers, { skipScrollTop: true })} className="bg-white border-2 border-black px-5 py-2.5 rounded-xl font-bold flex items-center hover:bg-black hover:text-white transition-all">
           <i className="fas fa-arrow-left mr-2"></i> Back to List
         </button>
       </div>

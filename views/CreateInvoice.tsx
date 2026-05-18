@@ -355,7 +355,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
     <div className="animate-in slide-in-from-bottom duration-500 pb-44 px-4 md:px-0">
       <div className="flex items-center justify-between mb-8 no-print">
         <h1 className="text-3xl font-bold text-black font-bengali uppercase tracking-tighter">{editInvoiceNo ? 'Edit Invoice' : 'Create New Invoice'}</h1>
-        <button onClick={() => navigateTo(View.Invoices)} className="text-gray-500 hover:text-black transition-colors font-bold flex items-center font-bengali">
+        <button onClick={() => navigateTo(View.Invoices, { skipScrollTop: true })} className="text-gray-500 hover:text-black transition-colors font-bold flex items-center font-bengali">
           <i className="fas fa-times mr-2 text-lg"></i> Close
         </button>
       </div>
@@ -643,7 +643,7 @@ const CreateInvoice: React.FC<CreateInvoiceProps> = ({ customers, navigateTo, re
              <button 
                onClick={async () => {
                  const saved = await saveInvoice();
-                 if (saved) navigateTo(View.Invoices);
+                 if (saved) navigateTo(View.Invoices, { skipScrollTop: true });
                }} 
                disabled={isSaving} 
                className="w-full md:w-auto px-10 py-4 bg-black text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-800 transition-all uppercase tracking-widest text-xs shadow-xl disabled:opacity-50 active:scale-95 font-bengali"

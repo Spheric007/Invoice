@@ -8,12 +8,21 @@ interface InvoiceListProps {
   invoices: Invoice[];
   navigateTo: (view: View, params?: any) => void;
   refresh: () => void;
-  initialSearch?: string | null;
+  searchTerm: string;
+  setSearchTerm: (val: string) => void;
+  statusFilter: string;
+  setStatusFilter: (val: string) => void;
 }
 
-const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, navigateTo, refresh, initialSearch }) => {
-  const [searchTerm, setSearchTerm] = useState(initialSearch || '');
-  const [statusFilter, setStatusFilter] = useState('all');
+const InvoiceList: React.FC<InvoiceListProps> = ({ 
+  invoices, 
+  navigateTo, 
+  refresh, 
+  searchTerm, 
+  setSearchTerm, 
+  statusFilter, 
+  setStatusFilter 
+}) => {
 
   const filteredInvoices = invoices.filter(inv => {
     const matchesSearch = (inv.invoice_no?.toString().toLowerCase().includes(searchTerm.toLowerCase())) ||
