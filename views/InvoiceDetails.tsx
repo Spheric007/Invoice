@@ -31,7 +31,8 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
     if (printRoot && memoContent) {
       printRoot.innerHTML = '';
       const clone = memoContent.cloneNode(true) as HTMLElement;
-      clone.style.margin = '0 auto'; 
+      clone.style.marginLeft = 'auto';
+      clone.style.marginRight = '0'; 
       clone.style.boxShadow = 'none';
       clone.style.display = 'block';
       printRoot.appendChild(clone);
