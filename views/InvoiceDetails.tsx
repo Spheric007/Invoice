@@ -93,7 +93,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
                  <div className="border-[1.5px] border-black px-6 py-0 text-[11px] font-black uppercase tracking-[1px]">CASH MEMO / ক্যাশ মেমো</div>
               </div>
               <div className="text-center">
-                 <h1 className="text-[18px] font-black uppercase tracking-tight leading-none mb-1 text-center w-full whitespace-nowrap">MASTER COMPUTER & PRINTING PRESS</h1>
+                 <h1 className="text-[16px] md:text-[18px] font-black uppercase tracking-tight leading-tight mb-1 text-center w-full">MASTER COMPUTER & PRINTING PRESS</h1>
                  <div className="w-full border-b-[2px] border-black mb-1"></div>
                  <div className="flex justify-between items-center px-1 mb-1">
                     <span className="text-[14px] font-black">Proprietor: S.M. Shahjahan</span>
@@ -182,9 +182,9 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
           {/* Modern Header */}
           <div className="text-center mb-6">
             <div className="text-gray-400 text-[10px] uppercase tracking-[0.2em] font-bold mb-1">Cash Memo</div>
-            <h1 className="text-2xl md:text-3xl font-black text-black mb-2 tracking-tight font-serif uppercase whitespace-nowrap overflow-hidden">Master Computer & Printing Press</h1>
-            <p className="text-[10px] md:text-sm text-gray-600 font-medium mb-0.5 whitespace-nowrap">All types of composing, graphic design, and printing work are done here.</p>
-            <p className="text-[10px] md:text-sm text-gray-900 font-black whitespace-nowrap">Primary association Market, Sakhipur, Tangail | 01720-365191</p>
+            <h1 className="text-xl md:text-3xl font-black text-black mb-2 tracking-tight font-serif uppercase leading-tight">Master Computer & Printing Press</h1>
+            <p className="text-[10px] md:text-sm text-gray-600 font-medium mb-0.5">All types of composing, graphic design, and printing work are done here.</p>
+            <p className="text-[10px] md:text-sm text-gray-900 font-black">Primary association Market, Sakhipur, Tangail | 01720-365191</p>
             <div className="h-[2px] bg-black mt-4 w-full opacity-100"></div>
           </div>
 
