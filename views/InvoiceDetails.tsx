@@ -176,103 +176,103 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
 
       {/* Modern Preview Section (Screen and Download) */}
       <div className="flex justify-center bg-secondary/30 p-4 md:p-10 rounded-3xl overflow-x-auto">
-        <div ref={modernMemoRef} className="bg-white text-gray-800 p-8 md:p-16 w-full max-w-[210mm] min-h-[297mm] shadow-2xl mx-auto flex flex-col font-sans relative">
+        <div ref={modernMemoRef} className="bg-white text-gray-800 p-8 md:p-12 w-[210mm] min-h-[297mm] shadow-2xl mx-auto flex flex-col font-sans relative box-border">
           
           {/* Modern Header */}
-          <div className="text-center mb-8">
-            <div className="text-gray-400 text-xs md:text-sm uppercase tracking-[0.2em] font-bold mb-2">Cash Memo</div>
-            <h1 className="text-2xl md:text-5xl font-black text-black mb-3 tracking-tight font-serif uppercase">Master Computer & Printing Press</h1>
-            <p className="text-xs md:text-base text-gray-600 font-medium mb-1">All types of composing, graphic design, and printing work are done here.</p>
-            <p className="text-xs md:text-base text-gray-900 font-black">Primary association Market, Sakhipur, Tangail | 01720-365191</p>
-            <div className="h-1 bg-black mt-6 w-full opacity-100"></div>
+          <div className="text-center mb-6">
+            <div className="text-gray-400 text-[10px] uppercase tracking-[0.2em] font-bold mb-1">Cash Memo</div>
+            <h1 className="text-3xl md:text-4xl font-black text-black mb-2 tracking-tight font-serif uppercase whitespace-nowrap overflow-hidden">Master Computer & Printing Press</h1>
+            <p className="text-[10px] md:text-sm text-gray-600 font-medium mb-0.5 whitespace-nowrap">All types of composing, graphic design, and printing work are done here.</p>
+            <p className="text-[10px] md:text-sm text-gray-900 font-black whitespace-nowrap">Primary association Market, Sakhipur, Tangail | 01720-365191</p>
+            <div className="h-[2px] bg-black mt-4 w-full opacity-100"></div>
           </div>
 
-          {/* Client & Invoice Info */}
-          <div className="flex flex-col md:flex-row justify-between mb-12 gap-8">
+          {/* Client & Invoice Info - Compact */}
+          <div className="flex justify-between mb-8 gap-4">
             <div className="flex-1">
-              <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Bill To:</div>
-              <h2 className="text-2xl md:text-3xl font-black text-black font-bengali leading-tight mb-2">{invoice.client_name}</h2>
-              <p className="text-sm md:text-base text-gray-600 font-bengali max-w-sm leading-relaxed">{invoice.client_address || 'Address not provided'}</p>
-              {invoice.client_mobile && <p className="text-sm md:text-base text-gray-500 font-bold mt-2">Mobile: {invoice.client_mobile}</p>}
+              <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Bill To:</div>
+              <h2 className="text-xl md:text-2xl font-black text-black font-bengali leading-tight mb-1">{invoice.client_name}</h2>
+              <p className="text-xs md:text-sm text-gray-600 font-bengali max-w-sm leading-tight">{invoice.client_address || 'Address not provided'}</p>
+              {invoice.client_mobile && <p className="text-xs md:text-sm text-gray-500 font-bold mt-1">Mobile: {invoice.client_mobile}</p>}
             </div>
-            <div className="text-left md:text-right">
-              <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Invoice Details:</div>
-              <div className="text-lg md:text-xl font-black text-black mb-2 flex md:justify-end items-center gap-2">
+            <div className="text-right">
+              <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Invoice Details:</div>
+              <div className="text-sm md:text-base font-black text-black mb-1 flex justify-end items-center gap-2">
                 Invoice No: <span className="text-indigo-600">#{invoice.invoice_no}</span>
               </div>
-              <div className="text-lg md:text-xl font-black text-black">
+              <div className="text-sm md:text-base font-black text-black">
                 Date: {formatDisplayDate(invoice.memo_date)}
               </div>
             </div>
           </div>
 
-          {/* Modern Table */}
-          <div className="flex-grow overflow-x-auto">
+          {/* Modern Table - Very Compact to fit 12 items */}
+          <div className="flex-grow">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-900 text-white">
-                  <th className="px-4 py-4 text-[10px] uppercase font-black text-center w-16 border border-gray-800">SL</th>
-                  <th className="px-4 py-4 text-[10px] uppercase font-black text-left border border-gray-800">DESCRIPTION</th>
-                  <th className="px-4 py-4 text-[10px] uppercase font-black text-center w-40 border border-gray-800">QUANTITY</th>
-                  <th className="px-4 py-4 text-[10px] uppercase font-black text-center w-32 border border-gray-800">RATE (৳)</th>
-                  <th className="px-4 py-4 text-[10px] uppercase font-black text-right w-40 border border-gray-800">TOTAL (৳)</th>
+                  <th className="px-2 py-2 text-[9px] uppercase font-black text-center w-12 border border-gray-800">SL</th>
+                  <th className="px-3 py-2 text-[9px] uppercase font-black text-left border border-gray-800">DESCRIPTION</th>
+                  <th className="px-3 py-2 text-[9px] uppercase font-black text-center w-32 border border-gray-800">QUANTITY</th>
+                  <th className="px-3 py-2 text-[9px] uppercase font-black text-center w-24 border border-gray-800">RATE (৳)</th>
+                  <th className="px-3 py-2 text-[9px] uppercase font-black text-right w-32 border border-gray-800">TOTAL (৳)</th>
                 </tr>
               </thead>
               <tbody>
                 {invoice.items.map((item, i) => (
-                  <tr key={i} className="border border-gray-200">
-                    <td className="px-4 py-4 text-center font-bold text-gray-500 border-r border-gray-200">{i + 1}</td>
-                    <td className="px-4 py-4 font-bengali font-bold text-gray-800 border-r border-gray-200 text-lg leading-tight">{item.details}</td>
-                    <td className="px-4 py-4 text-center text-gray-600 border-r border-gray-200 font-medium whitespace-nowrap">
-                      {item.len && item.wid ? `${item.len}'x${item.wid}' (${item.qty} pcs)` : (item.qty || '-')}
+                  <tr key={i} className="border-x border-b border-gray-200">
+                    <td className="px-2 py-1.5 text-center font-bold text-gray-500 border-r border-gray-200 text-[11px]">{i + 1}</td>
+                    <td className="px-3 py-1.5 font-bengali font-bold text-gray-800 border-r border-gray-200 text-[13px] leading-none">{item.details}</td>
+                    <td className="px-3 py-1.5 text-center text-gray-600 border-r border-gray-200 font-medium text-[12px] whitespace-nowrap">
+                      {item.len && item.wid ? `${item.len}'x${item.wid}' (${item.qty})` : (item.qty || '-')}
                     </td>
-                    <td className="px-4 py-4 text-center text-gray-600 border-r border-gray-200 font-medium">{item.rate || '0'}</td>
-                    <td className="px-4 py-4 text-right font-black text-gray-900">{Number(item.total || 0).toFixed(2)}</td>
+                    <td className="px-3 py-1.5 text-center text-gray-600 border-r border-gray-200 font-medium text-[12px]">{item.rate || '0'}</td>
+                    <td className="px-3 py-1.5 text-right font-black text-gray-900 text-[13px]">{Number(item.total || 0).toFixed(2)}</td>
                   </tr>
                 ))}
+                {/* Pad with empty rows to fill space if needed or just let it be */}
               </tbody>
             </table>
           </div>
 
-          {/* Words and Totals combined */}
-          <div className="mt-12 flex flex-col md:flex-row justify-between items-start gap-10">
-            <div className="flex-1 w-full">
-              <div className="border-l-4 border-indigo-600 pl-5 py-2 bg-indigo-50/30">
-                <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">AMOUNT IN WORDS:</div>
-                <div className="text-base md:text-lg font-black text-black italic">
+          {/* Words and Totals - Compact */}
+          <div className="mt-8 flex justify-between items-start gap-8">
+            <div className="flex-1">
+              <div className="border-l-4 border-indigo-600 pl-4 py-1.5 bg-indigo-50/30">
+                <div className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">AMOUNT IN WORDS:</div>
+                <div className="text-sm font-black text-black italic">
                    {convertToWords(Number(invoice.grand_total || 0))} Only.
                 </div>
               </div>
             </div>
             
-            <div className="w-full md:w-80 space-y-4">
-              <div className="flex justify-between items-center text-gray-500 border-b border-gray-100 pb-2">
-                <span className="font-bold uppercase text-[10px] tracking-widest">Subtotal:</span>
-                <span className="text-xl font-black text-gray-800 tracking-tighter">৳{Number(invoice.grand_total || 0).toFixed(2)}</span>
+            <div className="w-56 space-y-2">
+              <div className="flex justify-between items-center text-gray-500 border-b border-gray-50 pb-1">
+                <span className="font-bold uppercase text-[9px] tracking-widest">Subtotal:</span>
+                <span className="text-base font-black text-gray-800 tracking-tighter">৳{Number(invoice.grand_total || 0).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center text-emerald-600 border-b border-gray-100 pb-2">
-                <span className="font-bold uppercase text-[10px] tracking-widest">Advance Paid:</span>
-                <span className="text-xl font-black tracking-tighter">৳{Number(invoice.advance || 0).toFixed(2)}</span>
+              <div className="flex justify-between items-center text-emerald-600 border-b border-gray-50 pb-1">
+                <span className="font-bold uppercase text-[9px] tracking-widest">Advance Paid:</span>
+                <span className="text-base font-black tracking-tighter">৳{Number(invoice.advance || 0).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center text-rose-600 pt-2 relative">
-                <span className="text-lg font-black uppercase tracking-wider">Total Due:</span>
-                <span className="text-3xl font-black tracking-tighter">৳{Number(invoice.due || 0).toFixed(2)}</span>
-                <div className="absolute -bottom-2 right-0 w-32 h-1 bg-rose-600"></div>
+              <div className="flex justify-between items-center text-rose-600 pt-1 relative">
+                <span className="text-sm font-black uppercase tracking-wider">Total Due:</span>
+                <span className="text-xl font-black tracking-tighter">৳{Number(invoice.due || 0).toFixed(2)}</span>
+                <div className="absolute -bottom-1 right-0 w-24 h-[3px] bg-rose-600"></div>
               </div>
             </div>
           </div>
 
-
-          {/* Footer Signature Section */}
-          <div className="mt-auto pt-24 flex justify-between gap-10">
+          {/* Footer Signature Section - More Compact */}
+          <div className="mt-16 flex justify-between gap-16">
              <div className="text-center flex-1">
-                <div className="w-full border-b border-gray-200 mb-3 opacity-50"></div>
-                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Customer Signature</div>
+                <div className="w-full border-b border-gray-200 mb-2 opacity-50"></div>
+                <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Customer Signature</div>
              </div>
              <div className="text-center flex-1">
-                <div className="w-full border-b-2 border-black mb-3"></div>
-                <div className="text-base font-black text-black mb-1">Authorized Signature</div>
-                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Master Computer & Printing Press</div>
+                <div className="w-full border-b-2 border-black mb-2"></div>
+                <div className="text-sm font-black text-black mb-0.5">Authorized Signature</div>
+                <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Master Computer & Printing Press</div>
              </div>
           </div>
         </div>
