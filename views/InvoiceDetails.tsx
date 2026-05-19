@@ -175,13 +175,13 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
       </div>
 
       {/* Modern Preview Section (Screen and Download) */}
-      <div className="flex justify-center bg-secondary/30 p-4 md:p-10 rounded-3xl overflow-x-auto">
-        <div ref={modernMemoRef} className="bg-white text-gray-800 p-8 md:p-12 w-[210mm] min-h-[297mm] shadow-2xl mx-auto flex flex-col font-sans relative box-border">
+      <div className="flex justify-end bg-secondary/30 p-4 md:p-10 rounded-3xl overflow-x-auto">
+        <div ref={modernMemoRef} className="bg-white text-gray-800 p-8 md:p-12 w-[210mm] min-h-[297mm] shadow-2xl mx-auto md:mr-0 flex flex-col font-sans relative box-border">
           
           {/* Modern Header */}
           <div className="text-center mb-6">
             <div className="text-gray-400 text-[10px] uppercase tracking-[0.2em] font-bold mb-1">Cash Memo</div>
-            <h1 className="text-3xl md:text-4xl font-black text-black mb-2 tracking-tight font-serif uppercase whitespace-nowrap overflow-hidden">Master Computer & Printing Press</h1>
+            <h1 className="text-2xl md:text-3xl font-black text-black mb-2 tracking-tight font-serif uppercase whitespace-nowrap overflow-hidden">Master Computer & Printing Press</h1>
             <p className="text-[10px] md:text-sm text-gray-600 font-medium mb-0.5 whitespace-nowrap">All types of composing, graphic design, and printing work are done here.</p>
             <p className="text-[10px] md:text-sm text-gray-900 font-black whitespace-nowrap">Primary association Market, Sakhipur, Tangail | 01720-365191</p>
             <div className="h-[2px] bg-black mt-4 w-full opacity-100"></div>
@@ -258,7 +258,6 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
               <div className="flex justify-between items-center text-rose-600 pt-1 relative">
                 <span className="text-sm font-black uppercase tracking-wider">Total Due:</span>
                 <span className="text-xl font-black tracking-tighter">৳{Number(invoice.due || 0).toFixed(2)}</span>
-                <div className="absolute -bottom-1 right-0 w-24 h-[3px] bg-rose-600"></div>
               </div>
             </div>
           </div>
