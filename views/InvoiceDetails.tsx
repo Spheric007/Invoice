@@ -132,36 +132,26 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoiceNo, navigateTo }
               </div>
               <div className="w-full border-b-[1.5px] border-black mb-1"></div>
               <div className="flex-grow overflow-hidden">
-                 <table className="w-full border-collapse border-[2px] border-black text-[12px]">
+                 <table className="w-full border-collapse border-[2px] border-black text-[13px]">
                     <thead>
-                       <tr className="border-b-[2px] border-black h-6 align-middle">
-                          <th className="border-r-[2px] border-black w-8 text-center font-black">SL</th>
+                       <tr className="border-b-[2px] border-black h-7 align-middle">
+                          <th className="border-r-[2px] border-black w-8 text-center font-black text-[11px]">SL</th>
                           <th className="border-r-[2px] border-black text-center font-black">Description</th>
-                          <th className="border-r-[2px] border-black w-20 text-center font-black text-[10px]">Qty / Size</th>
+                          <th className="border-r-[2px] border-black w-20 text-center font-black text-[11px]">Qty / Size</th>
                           <th className="border-r-[2px] border-black w-14 text-center font-black">Rate</th>
                           <th className="w-20 text-center font-black">Total (৳)</th>
                        </tr>
                     </thead>
                     <tbody className="font-black">
                        {invoice.items.slice(0, 12).map((item, i) => (
-                          <tr key={i} className="border-b-[1px] border-black h-[19px] align-middle">
-                             <td className="border-r-[2px] border-black text-center text-[10px]">{i+1}</td>
-                             <td className="border-r-[2px] border-black pl-2 font-bengali leading-none py-0.5 text-[11px] truncate max-w-[200px]">{item.details}</td>
-                             <td className="border-r-[2px] border-black text-center text-[10px]">
+                          <tr key={i} className="border-b-[1px] border-black h-[23px] align-middle">
+                             <td className="border-r-[2px] border-black text-center text-[11px]">{i+1}</td>
+                             <td className="border-r-[2px] border-black pl-2 font-bengali leading-none py-1 text-[13px] truncate max-w-[200px]">{item.details}</td>
+                             <td className="border-r-[2px] border-black text-center text-[12px]">
                                 {item.len && item.wid ? `${item.len}x${item.wid}` : (item.qty || '')}
                              </td>
-                             <td className="border-r-[2px] border-black text-center">{item.rate || ''}</td>
-                             <td className="text-right pr-2">৳{item.total}/-</td>
-                          </tr>
-                       ))}
-                       {/* Padding rows if needed */}
-                       {Array.from({ length: Math.max(0, 12 - invoice.items.length) }).map((_, i) => (
-                          <tr key={`p-${i}`} className="border-b-[1px] border-black h-[19px] align-middle">
-                             <td className="border-r-[2px] border-black"></td>
-                             <td className="border-r-[2px] border-black"></td>
-                             <td className="border-r-[2px] border-black"></td>
-                             <td className="border-r-[2px] border-black"></td>
-                             <td className=""></td>
+                             <td className="border-r-[2px] border-black text-center text-[12px]">{item.rate || ''}</td>
+                             <td className="text-right pr-2 text-[12px]">৳{item.total}/-</td>
                           </tr>
                        ))}
                     </tbody>
